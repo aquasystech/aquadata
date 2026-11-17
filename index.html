@@ -1051,7 +1051,12 @@
       const allJenis = [...new Set(rawData.map(d => d.jenisAkua).filter(Boolean))];
       allJenis.forEach(j => {
         const up = j.toUpperCase();
-        if ((up.includes('AIR TAWAR') || up.includes('AIR PAYAU')) && !up.includes('HIASAN')) {
+        if (
+          (up.includes('AIR TAWAR') || up.includes('AIR PAYAU')) &&
+          !up.includes('HIASAN') &&
+          !up.includes('HATCHERY') &&
+          !up.includes('HATCERI')
+        ) {
           selectedFilters.jenisAkua.add(j);
         }
       });
@@ -1165,7 +1170,7 @@
 
       const categories = new Set();
       jenisSet.forEach(j => {
-        if (j.includes('HATCERI') || j.includes('HATCHERI') || j.includes('HIASAN')) {
+        if (j.includes('HATCHERY') || j.includes('HATCERI') || j.includes('HIASAN')) {
           categories.add('EKOR');
         } else if (j.includes('TUMBUHAN')) {
           categories.add('IKAT');
