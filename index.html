@@ -31,7 +31,7 @@
 
     .vertical-wrapper {
       width: 100%;
-      max-width: 96vw;
+      max-width: 97vw;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
@@ -39,7 +39,7 @@
       padding-bottom: 40px;
     }
 
-    /* Header Tanpa Background Putih pada Logo (Padat di Smartphone) */
+    /* Header Tanpa Background Putih pada Logo (Skala Halus di Smartphone) */
     .header-card {
       background: linear-gradient(135deg, #0369a1 0%, #0d9488 55%, #6d28d9 100%);
       color: #ffffff;
@@ -57,8 +57,8 @@
       justify-content: center;
     }
     .logo-wrap img {
-      width: 48px;
-      height: 48px;
+      width: 46px;
+      height: 46px;
       object-fit: contain;
       opacity: 1;
       display: block;
@@ -66,17 +66,17 @@
     }
     .header-text h1 {
       margin: 0 0 2px 0;
-      font-size: 0.98rem;
+      font-size: 0.96rem;
       line-height: 1.2;
     }
     .header-text p {
       margin: 0;
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       line-height: 1.25;
       color: #f0f9ff;
     }
 
-    /* Panel Penapis Melekat di Atas Semasa Skrol (Padat di Smartphone) */
+    /* Panel Penapis Melekat di Atas Semasa Skrol (Padat 3 Lajur di Smartphone) */
     .filter-card {
       position: sticky;
       top: 4px;
@@ -116,7 +116,7 @@
       color: #0369a1;
       padding: 2px 7px;
       border-radius: 999px;
-      max-width: 150px;
+      max-width: 155px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -372,10 +372,10 @@
       border-radius: 999px;
     }
 
-    /* Kad Carta Padat di Smartphone */
+    /* Kad Carta Skala Halus & Luas di Smartphone */
     .chart-section {
       background: var(--card);
-      padding: 11px 10px;
+      padding: 10px 8px;
       border-radius: 12px;
       border: 1px solid #e2e8f0;
       border-top: 4px solid #0284c7;
@@ -392,11 +392,12 @@
     .chart-section.accent-emerald { border-top-color: #059669; }
 
     .chart-top {
-      margin-bottom: 8px;
+      margin-bottom: 6px;
+      padding: 0 2px;
     }
     .chart-title {
-      margin: 0 0 5px 0;
-      font-size: 0.86rem;
+      margin: 0 0 4px 0;
+      font-size: 0.82rem;
       font-weight: 800;
       color: var(--text);
     }
@@ -406,9 +407,9 @@
       gap: 4px;
     }
     .badge {
-      font-size: 0.62rem;
+      font-size: 0.6rem;
       font-weight: 700;
-      padding: 2px 7px;
+      padding: 2px 6px;
       border-radius: 999px;
       background: #e0f2fe;
       color: #0369a1;
@@ -429,16 +430,16 @@
     .canvas-container {
       position: relative;
       width: 100%;
-      height: 245px;
+      height: 215px;
     }
     .canvas-container.tall {
-      height: 295px;
+      height: 255px;
     }
     .canvas-container.pie-box {
       position: relative;
       width: 100%;
       max-width: 100%;
-      height: 235px;
+      height: 225px;
       margin: 0 auto;
     }
 
@@ -446,7 +447,7 @@
     .pie-row-grid {
       display: grid;
       grid-template-columns: minmax(0, 1fr);
-      gap: 16px;
+      gap: 10px;
       width: 100%;
     }
 
@@ -454,7 +455,7 @@
     .chart-row-2col {
       display: grid;
       grid-template-columns: minmax(0, 1fr);
-      gap: 16px;
+      gap: 10px;
       width: 100%;
     }
 
@@ -462,7 +463,7 @@
     .dual-table-grid {
       display: grid;
       grid-template-columns: minmax(0, 1fr);
-      gap: 16px;
+      gap: 10px;
       width: 100%;
     }
 
@@ -567,13 +568,13 @@
         padding: 10px;
       }
       .chart-section { padding: 16px; border-radius: 16px; border-top-width: 5px; }
-      .chart-top { margin-bottom: 12px; }
+      .chart-top { margin-bottom: 12px; padding: 0; }
       .chart-title { font-size: 1.02rem; margin-bottom: 8px; }
       .metric-badges { gap: 6px; }
       .badge { font-size: 0.72rem; padding: 4px 10px; }
-      .chart-row-2col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .chart-row-2col { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
       .pie-row-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-      .dual-table-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .dual-table-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
       .canvas-container { height: 380px; }
       .canvas-container.tall { height: 470px; }
       .canvas-container.pie-box { height: 320px; }
@@ -934,13 +935,16 @@
           const label = chart.data.labels[idx];
           const meta = getStateMeta(label);
           if (meta.img && meta.img.complete && meta.img.naturalWidth > 0) {
+            const isMobile = chart.width < 600;
+            const fw = isMobile ? 16 : 28;
+            const fh = isMobile ? 10 : 17;
             const xPos = x.getPixelForTick(idx);
-            const yPos = x.bottom - 20;
+            const yPos = x.bottom - (fh + 2);
             ctx.save();
-            ctx.drawImage(meta.img, xPos - 14, yPos, 28, 17);
+            ctx.drawImage(meta.img, xPos - (fw / 2), yPos, fw, fh);
             ctx.strokeStyle = '#64748b';
-            ctx.lineWidth = 0.8;
-            ctx.strokeRect(xPos - 14, yPos, 28, 17);
+            ctx.lineWidth = 0.7;
+            ctx.strokeRect(xPos - (fw / 2), yPos, fw, fh);
             ctx.restore();
           }
         });
@@ -1304,8 +1308,13 @@
       chartInstances[canvasId] = new Chart(document.getElementById(canvasId), config);
     }
 
-    // Helper pembina carta gabungan dengan kedudukan angka anti-bertindih
+    // Helper pembina carta gabungan dengan skala proporsional komputer untuk skrin telefon
     function buildComboChart(canvasId, labels, pengArr, rmArr, uCfg, barColors, showFlags = false) {
+      const isMobile = window.innerWidth < 1024;
+      const dlSize   = isMobile ? 7.5 : 10;
+      const tickSize = isMobile ? 8.5 : 11;
+      const axisTitleSize = isMobile ? 9 : 11;
+
       const cfg = {
         _showStateFlags: showFlags,
         data: {
@@ -1319,25 +1328,25 @@
               backgroundColor: '#e11d48',
               pointBackgroundColor: '#ffffff',
               pointBorderColor: '#e11d48',
-              pointBorderWidth: 2,
-              pointRadius: 4,
+              pointBorderWidth: isMobile ? 1.5 : 2,
+              pointRadius: isMobile ? 2.5 : 4,
               yAxisID: 'y1',
               tension: 0.3,
-              borderWidth: 3,
+              borderWidth: isMobile ? 2 : 3,
               order: 0,
               datalabels: {
                 display: true,
                 align: 'top',
                 anchor: 'end',
-                offset: 6,
+                offset: isMobile ? 3 : 6,
                 clamp: true,
                 color: '#be123c',
-                backgroundColor: '#ffffff',
+                backgroundColor: 'rgba(255,255,255,0.9)',
                 borderColor: '#fecdd3',
                 borderWidth: 1,
-                borderRadius: 4,
-                padding: { top: 2, bottom: 2, left: 4, right: 4 },
-                font: { weight: 'bold', size: 10 },
+                borderRadius: 3,
+                padding: isMobile ? { top: 1, bottom: 1, left: 2, right: 2 } : { top: 2, bottom: 2, left: 4, right: 4 },
+                font: { weight: 'bold', size: dlSize },
                 formatter: v => formatCompactLabel(v, true)
               }
             },
@@ -1347,18 +1356,18 @@
               data: pengArr,
               backgroundColor: barColors,
               yAxisID: 'y',
-              borderRadius: 6,
+              borderRadius: isMobile ? 4 : 6,
               order: 1,
               datalabels: {
                 display: true,
                 anchor: 'end',
-                align: 'start', // Angka di bahagian dalam hujung atas bar supaya tidak bertindih dengan garis di atas
-                offset: 4,
+                align: 'start',
+                offset: isMobile ? 2 : 4,
                 clamp: true,
                 color: '#ffffff',
                 textShadowColor: 'rgba(0,0,0,0.65)',
-                textShadowBlur: 4,
-                font: { weight: 'bold', size: 10 },
+                textShadowBlur: 3,
+                font: { weight: 'bold', size: dlSize },
                 formatter: v => formatCompactLabel(v, false)
               }
             }
@@ -1367,10 +1376,18 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          layout: { padding: { top: 28, bottom: showFlags ? 30 : 6 } },
+          layout: { padding: { top: isMobile ? 18 : 28, bottom: showFlags ? (isMobile ? 16 : 30) : 4 } },
           interaction: { mode: 'index', intersect: false },
           plugins: {
-            legend: { display: true, position: 'top' },
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                boxWidth: isMobile ? 10 : 14,
+                padding: isMobile ? 8 : 12,
+                font: { size: isMobile ? 9.5 : 12 }
+              }
+            },
             tooltip: {
               callbacks: {
                 label: ctx => ctx.dataset.yAxisID === 'y1'
@@ -1382,21 +1399,30 @@
           scales: {
             x: {
               ticks: {
-                padding: 4
+                padding: 2,
+                font: { size: tickSize },
+                maxRotation: isMobile ? 45 : 30,
+                autoSkip: false
               }
             },
             y: {
               position: 'left',
               grace: '15%',
-              title: { display: true, text: uCfg.unit },
-              ticks: { callback: v => formatCompactLabel(v, false) }
+              title: { display: !isMobile, text: uCfg.unit, font: { size: axisTitleSize } },
+              ticks: {
+                font: { size: tickSize },
+                callback: v => formatCompactLabel(v, false)
+              }
             },
             y1: {
               position: 'right',
               grace: '18%',
               grid: { drawOnChartArea: false },
-              title: { display: true, text: 'Nilai Borong (RM)' },
-              ticks: { callback: v => formatCompactLabel(v, true) }
+              title: { display: !isMobile, text: 'Nilai Borong (RM)', font: { size: axisTitleSize } },
+              ticks: {
+                font: { size: tickSize },
+                callback: v => formatCompactLabel(v, true)
+              }
             }
           }
         }
@@ -1476,6 +1502,7 @@
       buildComboChart('cMonthlyDual', mLabels, mPeng, mRM, uCfg, '#0284c7', false);
 
       // --- 2. Trend Bulanan Purata Harga Borong ---
+      const isMobilePrice = window.innerWidth < 1024;
       buildChart('cMonthlyPrice', {
         type: 'line',
         data: {
@@ -1486,20 +1513,20 @@
             borderColor: '#f97316',
             backgroundColor: 'rgba(249, 115, 22, 0.2)',
             pointBackgroundColor: '#f59e0b',
-            pointRadius: 4,
+            pointRadius: isMobilePrice ? 2.5 : 4,
             fill: true,
             tension: 0.35,
-            borderWidth: 3,
+            borderWidth: isMobilePrice ? 2 : 3,
             datalabels: {
               display: true,
               align: 'top',
-              offset: 4,
+              offset: isMobilePrice ? 2 : 4,
               clamp: true,
               color: '#b45309',
-              backgroundColor: '#ffffff',
-              borderRadius: 4,
-              padding: 2,
-              font: { weight: 'bold', size: 10 },
+              backgroundColor: 'rgba(255,255,255,0.9)',
+              borderRadius: 3,
+              padding: isMobilePrice ? 1.5 : 2,
+              font: { weight: 'bold', size: isMobilePrice ? 7.5 : 10 },
               formatter: v => v > 0 ? 'RM' + v.toFixed(2) : ''
             }
           }]
@@ -1507,9 +1534,22 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          layout: { padding: { top: 24 } },
-          plugins: { legend: { display: true, position: 'top' } },
-          scales: { y: { grace: '15%', title: { display: true, text: uCfg.priceUnit } } }
+          layout: { padding: { top: isMobilePrice ? 16 : 24 } },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: { boxWidth: isMobilePrice ? 10 : 14, font: { size: isMobilePrice ? 9.5 : 12 } }
+            }
+          },
+          scales: {
+            x: { ticks: { font: { size: isMobilePrice ? 8.5 : 11 } } },
+            y: {
+              grace: '15%',
+              title: { display: !isMobilePrice, text: uCfg.priceUnit },
+              ticks: { font: { size: isMobilePrice ? 8.5 : 11 } }
+            }
+          }
         }
       });
 
