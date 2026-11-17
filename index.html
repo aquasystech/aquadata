@@ -76,14 +76,16 @@
       color: #f0f9ff;
     }
 
-    /* Panel Penapis Biasa / Tidak Melekat di Atas Semasa Skrol (Padat 3 Lajur di Smartphone) */
+    /* Panel Penapis Melekat (Sticky) di Atas Semasa Skrol (Padat 2 Baris x 3 Lajur di Smartphone) */
     .filter-card {
-      position: static;
+      position: sticky;
+      top: 4px;
+      z-index: 900;
       background: rgba(255, 255, 255, 0.98);
-      padding: 7px 9px;
+      padding: 6px 8px;
       border-radius: 11px;
       border: 1.5px solid #0284c7;
-      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.14);
     }
     .filter-header {
       display: flex;
@@ -596,29 +598,99 @@
     .btn-csv { background: #0d9488; color: #ffffff; }
     .btn-pdf { background: #0369a1; color: #ffffff; }
 
-    /* Matriks Heatmap Bermusim */
-    .heatmap-wrap {
-      width: 100%;
-      overflow-x: auto;
+    /* Bar Navigasi Tab Submodul */
+    .submod-nav {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 6px;
+      border-radius: 12px;
+      border: 1.5px solid #cbd5e1;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
     }
-    .heatmap-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.8rem;
-      text-align: center;
+    @media (min-width: 1024px) {
+      .submod-nav {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        padding: 8px;
+        gap: 8px;
+      }
     }
-    .heatmap-table th {
+    .submod-btn {
+      border: 1px solid #e2e8f0;
       background: #f8fafc;
       color: #334155;
-      padding: 7px 6px;
-      border: 1px solid #e2e8f0;
-      font-weight: 700;
+      padding: 8px 10px;
+      border-radius: 9px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      cursor: pointer;
+      text-align: center;
+      line-height: 1.25;
+      transition: all 0.2s ease;
     }
-    .heatmap-table td {
-      padding: 7px 5px;
-      border: 1px solid #e2e8f0;
-      font-weight: 600;
-      white-space: nowrap;
+    @media (min-width: 1024px) {
+      .submod-btn {
+        font-size: 0.82rem;
+        padding: 10px 14px;
+      }
+    }
+    .submod-btn:hover {
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+    .submod-btn.active {
+      background: linear-gradient(135deg, #0284c7 0%, #0d9488 100%);
+      color: #ffffff;
+      border-color: transparent;
+      box-shadow: 0 4px 10px rgba(2, 132, 199, 0.25);
+    }
+    .submod-pane {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .submod-pane.active {
+      display: flex;
+    }
+    @media (min-width: 1024px) {
+      .submod-pane { gap: 16px; }
+    }
+
+    /* Kawalan Metrik Dalam Tab 10 Tahun */
+    .inchart-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 10px 12px;
+      background: #ffffff;
+      border: 1.5px solid #0284c7;
+      border-radius: 12px;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 10px rgba(2, 132, 199, 0.08);
+    }
+    .inchart-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .inchart-label {
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: #0369a1;
+      text-transform: uppercase;
+    }
+    .inchart-select {
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1.5px solid #0284c7;
+      background: #f0f9ff;
+      color: #0369a1;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
     }
 
     /* Grid Top Movers */
@@ -764,7 +836,7 @@
       .logo-wrap img { width: 76px; height: 76px; }
       .header-text h1 { font-size: 1.65rem; }
       .header-text p { font-size: 0.88rem; }
-      .filter-card { position: static; padding: 16px; border-radius: 16px; border-width: 2px; box-shadow: 0 6px 16px rgba(14, 165, 233, 0.08); }
+      .filter-card { position: sticky; top: 8px; z-index: 900; padding: 14px 16px; border-radius: 16px; border-width: 2px; box-shadow: 0 6px 16px rgba(14, 165, 233, 0.12); }
       .filter-header { gap: 8px; }
       .filter-header span.f-title { font-size: 0.82rem; }
       .active-summary-pill { font-size: 0.74rem; padding: 3px 10px; max-width: none; }
@@ -844,8 +916,7 @@
           <div class="filter-item" id="wrap-daerah"></div>
           <div class="filter-item" id="wrap-jenisAkua"></div>
           <div class="filter-item" id="wrap-sTernakan"></div>
-          <div class="filter-item" id="wrap-kumpSpesies"></div>
-          <div class="filter-item full" id="wrap-spesis"></div>
+          <div class="filter-item" id="wrap-spesis"></div>
         </div>
       </div>
 
@@ -931,65 +1002,55 @@
           </div>
         </div>
 
-        <!-- CARTA 4: Kedudukan Negeri / Daerah (Dengan Bendera) -->
-        <div class="chart-section accent-emerald">
-          <div class="chart-top">
-            <h2 class="chart-title" id="titleC4">4. Kedudukan Negeri: Pengeluaran vs Nilai Borong</h2>
-            <div class="metric-badges">
-              <span class="badge" id="badgeC4Unit">Bar: Pengeluaran (Tan Metrik)</span>
-              <span class="badge rm">Garis: Nilai Borong (RM)</span>
+        <div class="chart-row-2col">
+          <!-- CARTA 4: Kedudukan Negeri / Daerah (Dengan Bendera) -->
+          <div class="chart-section accent-emerald">
+            <div class="chart-top">
+              <h2 class="chart-title" id="titleC4">4. Kedudukan Negeri: Pengeluaran vs Nilai Borong</h2>
+              <div class="metric-badges">
+                <span class="badge" id="badgeC4Unit">Bar: Pengeluaran (Tan Metrik)</span>
+                <span class="badge rm">Garis: Nilai Borong (RM)</span>
+              </div>
+            </div>
+            <div class="canvas-container tall">
+              <canvas id="cGeoCombined"></canvas>
             </div>
           </div>
-          <div class="canvas-container tall">
-            <canvas id="cGeoCombined"></canvas>
-          </div>
-        </div>
 
-        <!-- 3 CARTA PIE DALAM 1 BARIS -->
-        <div class="pie-row-grid">
+          <!-- CARTA 5: Pecahan Jenis Akua (Bar Pengeluaran + Garis Nilai Borong) -->
           <div class="chart-section accent-pink">
             <div class="chart-top">
-              <h2 class="chart-title">5A. Pecahan Jenis Akua</h2>
+              <h2 class="chart-title">5. Pecahan Jenis Akua: Pengeluaran vs Nilai Borong</h2>
               <div class="metric-badges">
-                <span class="badge purple" id="badgePie1">Pengeluaran (%)</span>
+                <span class="badge" id="badgeC5Unit">Bar: Pengeluaran (Tan Metrik)</span>
+                <span class="badge rm">Garis: Nilai Borong (RM)</span>
               </div>
             </div>
-            <div class="canvas-container pie-box">
-              <canvas id="cPieJenis"></canvas>
-            </div>
-          </div>
-
-          <div class="chart-section accent-purple">
-            <div class="chart-top">
-              <h2 class="chart-title">5B. Pecahan Kumpulan Spesies</h2>
-              <div class="metric-badges">
-                <span class="badge purple" id="badgePie2">Pengeluaran (%)</span>
-              </div>
-            </div>
-            <div class="canvas-container pie-box">
-              <canvas id="cPieKump"></canvas>
-            </div>
-          </div>
-
-          <div class="chart-section accent-teal">
-            <div class="chart-top">
-              <h2 class="chart-title">5C. Pecahan Spesies (Top 8)</h2>
-              <div class="metric-badges">
-                <span class="badge purple" id="badgePie3">Pengeluaran (%)</span>
-              </div>
-            </div>
-            <div class="canvas-container pie-box">
-              <canvas id="cPieSpesis"></canvas>
+            <div class="canvas-container tall">
+              <canvas id="cBarJenisAkua"></canvas>
             </div>
           </div>
         </div>
       </div>
 
       <!-- ========================================================= -->
-      <!-- TAB 2: ANALISIS PERBANDINGAN 10 TAHUN (2017–2026)         -->
+      <!-- TAB 2: PERBANDINGAN 10 TAHUN (5 CARTA GARIS BERASINGAN)   -->
       <!-- ========================================================= -->
       <div id="pane-tenyear" class="submod-pane">
-        <!-- CARTA 3: Prestasi Tahunan Keseluruhan (Bebas Penapis Tahun) -->
+        <!-- Kawalan Pilihan Metrik untuk Kesemua 5 Carta Garis 10 Tahun -->
+        <div class="inchart-controls">
+          <div class="inchart-group">
+            <span class="inchart-label">Metrik Perbandingan 10 Tahun (Paksi-Y):</span>
+            <select id="mlMetricSelect" class="inchart-select" onchange="renderAll10YearLines()">
+              <option value="peng">Pengeluaran</option>
+              <option value="rm">Nilai Borong (RM)</option>
+              <option value="avg">Purata Harga (RM/kg)</option>
+            </select>
+          </div>
+          <span class="badge">Memaparkan semua garis mengikut penapis di atas (2017–2026) | Klik legenda untuk sorok/papar</span>
+        </div>
+
+        <!-- CARTA 3: Prestasi Tahunan Keseluruhan -->
         <div class="chart-section accent-purple">
           <div class="chart-top">
             <h2 class="chart-title">3. Prestasi Tahunan Keseluruhan 2017–2026 (Bebas Penapis Tahun)</h2>
@@ -1003,49 +1064,54 @@
           </div>
         </div>
 
-        <!-- CARTA MULTI-LINE PERBANDINGAN 10 TAHUN (IN-CHART CONTROLS) -->
-        <div class="chart-section accent-indigo">
-          <div class="chart-top">
-            <h2 class="chart-title">9. Trend Perbandingan 10 Tahun Mengikut Dimensi (Top 5 Garis)</h2>
-            <div class="metric-badges">
-              <span class="badge">Paksi-X: 2017–2026 (Bebas Penapis Tahun) | Klik Legenda untuk Sorok/Papar Garis</span>
+        <!-- 5 CARTA GARIS PERBANDINGAN 10 TAHUN MENGIKUT DIMENSI -->
+        <div class="chart-row-2col">
+          <div class="chart-section accent-indigo">
+            <div class="chart-top">
+              <h2 class="chart-title">9A. Trend 10 Tahun Mengikut Negeri (Semua Garis Tertapis)</h2>
             </div>
-            <div class="inchart-controls">
-              <div class="inchart-group">
-                <span class="inchart-label">Metrik (Paksi-Y):</span>
-                <select id="mlMetricSelect" class="inchart-select" onchange="renderMultiLine10Year()">
-                  <option value="peng">Pengeluaran</option>
-                  <option value="rm">Nilai Borong (RM)</option>
-                  <option value="avg">Purata Harga (RM/kg)</option>
-                </select>
-              </div>
-              <div class="inchart-group">
-                <span class="inchart-label">Pecahan Garis:</span>
-                <select id="mlDimSelect" class="inchart-select" onchange="renderMultiLine10Year()">
-                  <option value="negeri">Negeri</option>
-                  <option value="daerah">Daerah</option>
-                  <option value="jenisAkua">Jenis Akua</option>
-                  <option value="sTernakan">Sistem Ternakan</option>
-                  <option value="kumpSpesies">Kumpulan Spesies</option>
-                  <option value="spesis">Spesies</option>
-                </select>
-              </div>
+            <div class="canvas-container tall">
+              <canvas id="cLine10Y_negeri"></canvas>
             </div>
           </div>
-          <div class="canvas-container tall">
-            <canvas id="cMultiLine10Y"></canvas>
+
+          <div class="chart-section accent-teal">
+            <div class="chart-top">
+              <h2 class="chart-title">9B. Trend 10 Tahun Mengikut Jenis Akua (Semua Garis Tertapis)</h2>
+            </div>
+            <div class="canvas-container tall">
+              <canvas id="cLine10Y_jenisAkua"></canvas>
+            </div>
           </div>
         </div>
 
-        <!-- HEATMAP BERMUSIM (BULAN x TAHUN) -->
-        <div class="chart-section accent-teal">
-          <div class="chart-top">
-            <h2 class="chart-title">10. Heatmap Pengeluaran Bermusim (Bulan × Tahun 2017–2026)</h2>
-            <div class="metric-badges">
-              <span class="badge purple" id="badgeC11Unit">Intensiti Pengeluaran Bulanan (Tan Metrik)</span>
+        <div class="chart-row-2col">
+          <div class="chart-section accent-amber">
+            <div class="chart-top">
+              <h2 class="chart-title">9C. Trend 10 Tahun Mengikut Sistem Ternakan (Semua Garis Tertapis)</h2>
+            </div>
+            <div class="canvas-container tall">
+              <canvas id="cLine10Y_sTernakan"></canvas>
             </div>
           </div>
-          <div id="heatmapContainer" class="heatmap-wrap"></div>
+
+          <div class="chart-section accent-pink">
+            <div class="chart-top">
+              <h2 class="chart-title">9D. Trend 10 Tahun Mengikut Spesies (Semua Garis Tertapis)</h2>
+            </div>
+            <div class="canvas-container tall">
+              <canvas id="cLine10Y_spesis"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-section accent-emerald">
+          <div class="chart-top">
+            <h2 class="chart-title">9E. Trend 10 Tahun Mengikut Daerah (Semua Garis Tertapis)</h2>
+          </div>
+          <div class="canvas-container tall">
+            <canvas id="cLine10Y_daerah"></canvas>
+          </div>
         </div>
       </div>
 
@@ -1054,7 +1120,6 @@
       <!-- ========================================================= -->
       <div id="pane-species" class="submod-pane">
         <div class="chart-row-2col">
-          <!-- CARTA 6: Sistem Ternakan -->
           <div class="chart-section accent-indigo">
             <div class="chart-top">
               <h2 class="chart-title">6. Perbandingan Sistem Ternakan (S.TERNAKAN)</h2>
@@ -1068,7 +1133,6 @@
             </div>
           </div>
 
-          <!-- CARTA 7: Top 10 Kumpulan Spesies -->
           <div class="chart-section accent-teal">
             <div class="chart-top">
               <h2 class="chart-title">7. Top 10 Kumpulan Spesies: Pengeluaran vs Nilai Borong</h2>
@@ -1083,11 +1147,10 @@
           </div>
         </div>
 
-        <!-- MATRIKS STRATEGIK SCATTER PLOT & TOP MOVERS YOY -->
         <div class="chart-row-2col">
           <div class="chart-section accent-emerald">
             <div class="chart-top">
-              <h2 class="chart-title">11. Matriks Strategik Spesies: Pengeluaran vs Harga Purata</h2>
+              <h2 class="chart-title">10. Matriks Strategik Spesies: Pengeluaran vs Harga Purata</h2>
               <div class="metric-badges">
                 <span class="badge" id="badgeC9Unit">Paksi-X: Pengeluaran (Tan Metrik)</span>
                 <span class="badge avg" id="badgeC9Price">Paksi-Y: Purata (RM / kg)</span>
@@ -1100,7 +1163,7 @@
 
           <div class="chart-section accent-amber">
             <div class="chart-top">
-              <h2 class="chart-title">12. Analisis Top Movers Spesies (Tahun-ke-Tahun / YoY)</h2>
+              <h2 class="chart-title">11. Analisis Top Movers Spesies (Tahun-ke-Tahun / YoY)</h2>
               <div class="metric-badges">
                 <span class="badge" id="badgeC10Unit">Perubahan Pengeluaran (Tan Metrik)</span>
               </div>
@@ -1119,7 +1182,6 @@
         </div>
 
         <div class="dual-table-grid">
-          <!-- Jadual 8A: Ringkasan Spesies -->
           <div class="chart-section accent-teal">
             <div class="chart-top">
               <h2 class="chart-title">8A. Jadual Ringkasan Spesies (Klik Lajur Susun)</h2>
@@ -1144,7 +1206,6 @@
             </div>
           </div>
 
-          <!-- Jadual 8B: Ringkasan Daerah -->
           <div class="chart-section accent-indigo">
             <div class="chart-top">
               <h2 class="chart-title">8B. Jadual Ringkasan Daerah (Klik Lajur Susun)</h2>
@@ -1285,13 +1346,12 @@
     Chart.register(stateFlagPlugin);
 
     const FILTER_CONFIG = [
-      { key: 'tahun',       label: 'Tahun',            allText: 'Semua Tahun' },
-      { key: 'negeri',      label: 'Negeri',           allText: 'Semua Negeri' },
-      { key: 'daerah',      label: 'Daerah',           allText: 'Semua Daerah' },
-      { key: 'jenisAkua',   label: 'Jenis Akua',       allText: 'Semua Jenis Akua' },
-      { key: 'sTernakan',   label: 'Sistem Ternakan',  allText: 'Semua Sistem' },
-      { key: 'kumpSpesies', label: 'Kumpulan Spesies', allText: 'Semua Kumpulan' },
-      { key: 'spesis',      label: 'Spesies',          allText: 'Semua Spesies' }
+      { key: 'tahun',     label: 'Tahun',           allText: 'Semua Tahun' },
+      { key: 'negeri',    label: 'Negeri',          allText: 'Semua Negeri' },
+      { key: 'daerah',    label: 'Daerah',          allText: 'Semua Daerah' },
+      { key: 'jenisAkua', label: 'Jenis Akua',      allText: 'Semua Jenis Akua' },
+      { key: 'sTernakan', label: 'Sistem Ternakan', allText: 'Semua Sistem' },
+      { key: 'spesis',    label: 'Spesies',         allText: 'Semua Spesies' }
     ];
 
     const selectedFilters = {
@@ -1300,7 +1360,6 @@
       daerah: new Set(),
       jenisAkua: new Set(),
       sTernakan: new Set(),
-      kumpSpesies: new Set(),
       spesis: new Set()
     };
 
@@ -1483,7 +1542,6 @@
           if (key === 'daerah' && selectedFilters.negeri.size > 0 && !selectedFilters.negeri.has(d.negeri)) return false;
           if (key !== 'jenisAkua' && selectedFilters.jenisAkua.size > 0 && !selectedFilters.jenisAkua.has(d.jenisAkua)) return false;
           if ((key === 'kumpSpesies' || key === 'spesis') && selectedFilters.sTernakan.size > 0 && !selectedFilters.sTernakan.has(d.sTernakan)) return false;
-          if (key === 'spesis' && selectedFilters.kumpSpesies.size > 0 && !selectedFilters.kumpSpesies.has(d.kumpSpesies)) return false;
           return true;
         });
 
@@ -1609,7 +1667,6 @@
         (selectedFilters.daerah.size === 0 || selectedFilters.daerah.has(d.daerah)) &&
         (selectedFilters.jenisAkua.size === 0 || selectedFilters.jenisAkua.has(d.jenisAkua)) &&
         (selectedFilters.sTernakan.size === 0 || selectedFilters.sTernakan.has(d.sTernakan)) &&
-        (selectedFilters.kumpSpesies.size === 0 || selectedFilters.kumpSpesies.has(d.kumpSpesies)) &&
         (selectedFilters.spesis.size === 0 || selectedFilters.spesis.has(d.spesis))
       );
     }
@@ -1627,9 +1684,7 @@
       document.getElementById('badgeC2Price').innerText     = `Garis: Purata Harga Borong (${uCfg.priceUnit})`;
       document.getElementById('badgeC3Unit').innerText      = `Bar: Pengeluaran (${uCfg.unit})`;
       document.getElementById('badgeC4Unit').innerText      = `Bar: Pengeluaran (${uCfg.unit})`;
-      document.getElementById('badgePie1').innerText        = `Pengeluaran (${uCfg.unit})`;
-      document.getElementById('badgePie2').innerText        = `Pengeluaran (${uCfg.unit})`;
-      document.getElementById('badgePie3').innerText        = `Pengeluaran (${uCfg.unit})`;
+      document.getElementById('badgeC5Unit').innerText      = `Bar: Pengeluaran (${uCfg.unit})`;
       document.getElementById('badgeC6Unit').innerText      = `Bar: Pengeluaran (${uCfg.unit})`;
       document.getElementById('badgeC7Unit').innerText      = `Bar: Pengeluaran (${uCfg.unit})`;
       document.getElementById('badgeTblUnit').innerText     = `Pengeluaran (${uCfg.unit})`;
@@ -1641,7 +1696,6 @@
       document.getElementById('badgeC9Unit').innerText      = `Paksi-X: Pengeluaran (${uCfg.unit})`;
       document.getElementById('badgeC9Price').innerText     = `Paksi-Y: Purata (${uCfg.priceUnit})`;
       document.getElementById('badgeC10Unit').innerText     = `Perubahan Pengeluaran (${uCfg.unit})`;
-      document.getElementById('badgeC11Unit').innerText     = `Intensiti Pengeluaran Bulanan (${uCfg.unit})`;
 
       const mlMetricEl = document.getElementById('mlMetricSelect');
       if (mlMetricEl && mlMetricEl.options.length >= 3) {
@@ -1712,7 +1766,6 @@
         (selectedFilters.daerah.size === 0 || selectedFilters.daerah.has(d.daerah)) &&
         (selectedFilters.jenisAkua.size === 0 || selectedFilters.jenisAkua.has(d.jenisAkua)) &&
         (selectedFilters.sTernakan.size === 0 || selectedFilters.sTernakan.has(d.sTernakan)) &&
-        (selectedFilters.kumpSpesies.size === 0 || selectedFilters.kumpSpesies.has(d.kumpSpesies)) &&
         (selectedFilters.spesis.size === 0 || selectedFilters.spesis.has(d.spesis))
       );
 
@@ -2030,24 +2083,32 @@
         !showDaerah
       );
 
-      buildPieChart('cPieJenis', Object.entries(aggregateBy(data, d => d.jenisAkua)), uCfg);
-      buildPieChart('cPieKump', Object.entries(aggregateBy(data, d => d.kumpSpesies)), uCfg);
-      buildPieChart('cPieSpesis', Object.entries(aggregateBy(data, d => d.spesis)), uCfg);
+      // Carta 5: Bar Jenis Akua + Garis Nilai Borong
+      const byJenis = Object.entries(aggregateBy(data, d => d.jenisAkua)).sort((a, b) => b[1].peng - a[1].peng);
+      buildComboChart(
+        'cBarJenisAkua',
+        byJenis.map(x => x[0]),
+        byJenis.map(x => x[1].peng),
+        byJenis.map(x => x[1].rm),
+        uCfg,
+        '#db2777',
+        false
+      );
     }
 
     // =========================================================
-    // RENDER SUBMODUL 2: PERBANDINGAN 10 TAHUN (2017–2026)
+    // RENDER SUBMODUL 2: 5 CARTA GARIS 10 TAHUN (SEMUA GARIS)
     // =========================================================
-    const MULTILINE_PALETTE = [
-      '#0284c7', // Biru
-      '#e11d48', // Merah
-      '#059669', // Hijau Zamrud
-      '#f59e0b', // Jingga
-      '#7c3aed', // Ungu
-      '#db2777', // Merah Jambu
-      '#0d9488', // Teal
-      '#78350f'  // Coklat Gelap
-    ];
+    function generateDistinctColor(idx) {
+      const baseColors = [
+        '#0284c7', '#e11d48', '#059669', '#f59e0b', '#7c3aed',
+        '#db2777', '#0d9488', '#78350f', '#2563eb', '#dc2626',
+        '#16a34a', '#d97706', '#9333ea', '#0891b2', '#4f46e5'
+      ];
+      if (idx < baseColors.length) return baseColors[idx];
+      const hue = (idx * 137.508) % 360;
+      return `hsl(${Math.round(hue)}, 72%, 44%)`;
+    }
 
     function renderTenYearTab(dataNoYear, uCfg) {
       const byYear = aggregateBy(dataNoYear, d => d.tahun);
@@ -2062,18 +2123,22 @@
         false
       );
 
-      renderMultiLine10Year();
-      renderSeasonalHeatmap(uCfg);
+      renderAll10YearLines();
     }
 
-    function renderMultiLine10Year() {
+    function renderAll10YearLines() {
       const dataNoYear = getFilteredData(false);
       const uCfg = detectUnitConfig(dataNoYear);
       const metric = document.getElementById('mlMetricSelect').value;
-      const dim    = document.getElementById('mlDimSelect').value;
 
+      const dims = ['negeri', 'jenisAkua', 'sTernakan', 'spesis', 'daerah'];
+      dims.forEach(dim => {
+        renderSingleDimension10Y(`cLine10Y_${dim}`, dim, dataNoYear, uCfg, metric);
+      });
+    }
+
+    function renderSingleDimension10Y(canvasId, dim, dataNoYear, uCfg, metric) {
       const allYears = [...new Set(dataNoYear.map(d => String(d.tahun)).filter(Boolean))].sort();
-
       const totalByCat = {};
       const yearCatMap = {};
 
@@ -2097,20 +2162,13 @@
         return obj.peng;
       };
 
-      const userSelectedForDim = selectedFilters[dim];
-      let chosenCats = [];
-      if (userSelectedForDim && userSelectedForDim.size > 0 && userSelectedForDim.size <= 8) {
-        chosenCats = [...userSelectedForDim].filter(c => totalByCat[c]);
-      } else {
-        chosenCats = Object.entries(totalByCat)
-          .sort((a, b) => getMetricVal(b[1]) - getMetricVal(a[1]))
-          .slice(0, 5)
-          .map(x => x[0]);
-      }
+      const allSortedCats = Object.entries(totalByCat)
+        .sort((a, b) => getMetricVal(b[1]) - getMetricVal(a[1]))
+        .map(x => x[0]);
 
       const isMobile = window.innerWidth < 1024;
-      const datasets = chosenCats.map((cat, idx) => {
-        const color = MULTILINE_PALETTE[idx % MULTILINE_PALETTE.length];
+      const datasets = allSortedCats.map((cat, idx) => {
+        const color = generateDistinctColor(idx);
         return {
           label: cat,
           data: allYears.map(y => {
@@ -2121,10 +2179,10 @@
           backgroundColor: color,
           pointBackgroundColor: '#ffffff',
           pointBorderColor: color,
-          pointBorderWidth: 2,
-          pointRadius: isMobile ? 3.5 : 5,
-          pointHoverRadius: isMobile ? 5.5 : 7,
-          borderWidth: isMobile ? 2.2 : 3,
+          pointBorderWidth: 1.8,
+          pointRadius: isMobile ? 2.8 : 4.2,
+          pointHoverRadius: isMobile ? 5 : 6.5,
+          borderWidth: isMobile ? 2 : 2.6,
           tension: 0.25,
           spanGaps: true,
           datalabels: { display: false }
@@ -2135,7 +2193,7 @@
         ? 'Nilai Borong (RM)'
         : (metric === 'avg' ? `Purata Harga (${uCfg.priceUnit})` : `Pengeluaran (${uCfg.unit})`);
 
-      buildChart('cMultiLine10Y', {
+      buildChart(canvasId, {
         type: 'line',
         data: { labels: allYears, datasets: datasets },
         options: {
@@ -2144,13 +2202,13 @@
           interaction: { mode: 'index', intersect: false },
           plugins: {
             legend: {
-              display: true,
+              display: allSortedCats.length <= 25,
               position: 'top',
               labels: {
                 usePointStyle: true,
-                boxWidth: isMobile ? 10 : 14,
-                padding: isMobile ? 8 : 14,
-                font: { weight: 'bold', size: isMobile ? 9.5 : 11.5 }
+                boxWidth: isMobile ? 8 : 12,
+                padding: isMobile ? 6 : 10,
+                font: { weight: 'bold', size: isMobile ? 8.5 : 10.5 }
               }
             },
             tooltip: {
@@ -2167,9 +2225,7 @@
             }
           },
           scales: {
-            x: {
-              ticks: { font: { weight: 'bold', size: isMobile ? 9 : 11.5 } }
-            },
+            x: { ticks: { font: { weight: 'bold', size: isMobile ? 9 : 11 } } },
             y: {
               grace: '10%',
               title: { display: !isMobile, text: yAxisTitle, font: { weight: 'bold', size: 11 } },
@@ -2438,7 +2494,6 @@
         if (selectedFilters.daerah.size > 0 && !selectedFilters.daerah.has(d.daerah)) return;
         if (selectedFilters.jenisAkua.size > 0 && !selectedFilters.jenisAkua.has(d.jenisAkua)) return;
         if (selectedFilters.sTernakan.size > 0 && !selectedFilters.sTernakan.has(d.sTernakan)) return;
-        if (selectedFilters.kumpSpesies.size > 0 && !selectedFilters.kumpSpesies.has(d.kumpSpesies)) return;
 
         if (String(d.tahun) === targetYear) currMap[d.spesis] = (currMap[d.spesis] || 0) + d.pengeluaran;
         if (String(d.tahun) === prevYear)   prevMap[d.spesis] = (prevMap[d.spesis] || 0) + d.pengeluaran;
@@ -2471,48 +2526,6 @@
         buildBox('📈 Top 5 Lonjakan Pengeluaran', gainers, true) +
         buildBox('📉 Top 5 Penurunan Pengeluaran', losers, false);
     }
-
-    // --- CARTA 11: Heatmap Pengeluaran Bermusim (Bulan x Tahun) ---
-    function renderSeasonalHeatmap(uCfg) {
-      const container = document.getElementById('heatmapContainer');
-      if (!container) return;
-
-      const years = [...new Set(rawData.map(d => String(d.tahun)).filter(Boolean))].sort();
-      const matrix = {};
-      let maxVal = 0;
-
-      rawData.forEach(d => {
-        if (selectedFilters.negeri.size > 0 && !selectedFilters.negeri.has(d.negeri)) return;
-        if (selectedFilters.daerah.size > 0 && !selectedFilters.daerah.has(d.daerah)) return;
-        if (selectedFilters.jenisAkua.size > 0 && !selectedFilters.jenisAkua.has(d.jenisAkua)) return;
-        if (selectedFilters.sTernakan.size > 0 && !selectedFilters.sTernakan.has(d.sTernakan)) return;
-        if (selectedFilters.kumpSpesies.size > 0 && !selectedFilters.kumpSpesies.has(d.kumpSpesies)) return;
-        if (selectedFilters.spesis.size > 0 && !selectedFilters.spesis.has(d.spesis)) return;
-
-        const key = `${d.tahun}_${d.month}`;
-        matrix[key] = (matrix[key] || 0) + d.pengeluaran;
-        if (matrix[key] > maxVal) maxVal = matrix[key];
-      });
-
-      let html = '<table class="heatmap-table"><thead><tr><th>Tahun</th>';
-      for (let m = 1; m <= 12; m++) html += `<th>${BULAN[m]}</th>`;
-      html += '</tr></thead><tbody>';
-
-      years.forEach(y => {
-        html += `<tr><th>${y}</th>`;
-        for (let m = 1; m <= 12; m++) {
-          const val = matrix[`${y}_${m}`] || 0;
-          const intensity = maxVal > 0 ? (val / maxVal) : 0;
-          const bg = val === 0 ? '#f8fafc' : `rgba(2, 132, 199, ${(0.12 + intensity * 0.78).toFixed(2)})`;
-          const color = intensity > 0.52 ? '#ffffff' : '#0f172a';
-          html += `<td style="background:${bg}; color:${color};" title="${y} ${BULAN[m]}: ${fmtNum(val, 2)} ${uCfg.unit}">${val > 0 ? formatCompactLabel(val, false) : '-'}</td>`;
-        }
-        html += '</tr>';
-      });
-      html += '</tbody></table>';
-      container.innerHTML = html;
-    }
-
     </script>
 </body>
 </html>
