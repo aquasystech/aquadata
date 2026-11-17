@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/usopdrahman/logbookdof/1f784168ab48de031417c6fcb8677322765604eb/DOF%20LOGO.png">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+  <style>
+    :root {
+      --bg-grad: linear-gradient(180deg, #e0f2fe 0%, #f0fdf4 35%, #fdf4ff 70%, #fffbeb 100%);
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 10px;
+      background: var(--bg-grad);
+      background-attachment: fixed;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    .vertical-wrapper {
+      width: 100%;
+      max-width: 90vw;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding-bottom: 50px;
+    }
+
+    /* Header Tanpa Background Putih pada Logo */
+    .header-card {
+      background: linear-gradient(135deg, #0369a1 0%, #0d9488 55%, #6d28d9 100%);
+      color: #ffffff;
+      padding: 16px 20px;
+      border-radius: 18px;
+      box-shadow: 0 10px 25px rgba(3, 105, 161, 0.25);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .logo-wrap {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo-wrap img {
+      width: 76px;
+      height: 76px;
+      object-fit: contain;
+      opacity: 1;
+      display: block;
+      filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.35));
+    }
+    .header-text h1 {
+      margin: 0 0 4px 0;
+      font-size: 1.25rem;
+      line-height: 1.25;
+    }
+    .header-text p {
+      margin: 0;
+      font-size: 0.84rem;
+      color: #f0f9ff;
+    }
+
+    /* Panel Penapis Melekat di Atas Semasa Skrol (Smartphone) */
+    .filter-card {
+      position: sticky;
+      top: 6px;
+      z-index: 900;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(8px);
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 2px solid #0284c7;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.14);
+    }
+    .filter-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .filter-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .filter-header span.f-title {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #0369a1;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .active-summary-pill {
+      font-size: 0.74rem;
+      font-weight: 700;
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+    .filter-btn-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .btn-default {
+      background: #0284c7;
+      color: #ffffff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-reset {
+      background: #e11d48;
+      color: #ffffff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-collapse {
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    /* Susunan 3 lajur pada smartphone */
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .filter-grid.collapsed {
+      display: none;
+    }
+    .filter-item.full {
+      grid-column: span 3;
+    }
+    .filter-item label {
+      display: block;
+      font-size: 0.66rem;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Custom Multi-Select Dropdown Asal */
+    .ms-container {
+      position: relative;
+      width: 100%;
+    }
+    .ms-btn {
+      width: 100%;
+      padding: 7px 8px;
+      border-radius: 8px;
+      border: 1.5px solid #cbd5e1;
+      background: #f8fafc;
+      color: var(--text);
+      font-size: 0.74rem;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 4px;
+    }
+    .ms-btn.active {
+      border-color: #0284c7;
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+    .ms-btn-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ms-dropdown {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 88vw;
+      max-width: 340px;
+      background: #ffffff;
+      border: 2px solid #0284c7;
+      border-radius: 16px;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.35);
+      z-index: 2000;
+      padding: 14px;
+      text-align: left;
+    }
+    .ms-dropdown.open {
+      display: block;
+    }
+    .ms-search {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+      text-align: left;
+      background: #f8fafc;
+    }
+    .ms-search:focus {
+      outline: none;
+      border-color: #0284c7;
+      background: #ffffff;
+    }
+    .ms-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .ms-actions button {
+      flex: 1;
+      background: #e0f2fe;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: #0369a1;
+      cursor: pointer;
+    }
+    .ms-list {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      max-height: 240px;
+      overflow-y: auto;
+      gap: 4px;
+      padding: 2px;
+    }
+    .ms-option {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 14px;
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      line-height: 1.3;
+      font-weight: 600;
+      cursor: pointer;
+      color: #0f172a;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      text-align: left;
+      flex-shrink: 0;
+    }
+    .ms-option:hover {
+      background: #e0f2fe;
+      border-color: #7dd3fc;
+    }
+    .ms-option input[type="checkbox"] {
+      accent-color: #0284c7;
+      width: 16px;
+      height: 16px;
+      min-width: 16px;
+      min-height: 16px;
+      margin: 0;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    /* Banner Amaran Unit Campuran */
+    .unit-notice {
+      display: none;
+      background: #fef3c7;
+      border: 1.5px solid #f59e0b;
+      color: #92400e;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    /* 3 Kad KPI dalam 1 Baris pada Smartphone (Ikon di Sebelah Kanan) */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+    }
+    .kpi-box {
+      padding: 9px 7px;
+      border-radius: 12px;
+      color: #ffffff;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      gap: 4px;
+      min-width: 0;
+    }
+    .kpi-box > div:first-child {
+      min-width: 0;
+      flex: 1;
+    }
+    .kpi-box.blue  { background: linear-gradient(135deg, #0284c7 0%, #1d4ed8 100%); }
+    .kpi-box.teal  { background: linear-gradient(135deg, #0d9488 0%, #059669 100%); }
+    .kpi-box.amber { background: linear-gradient(135deg, #d97706 0%, #ea580c 100%); }
+
+    .kpi-icon-clean {
+      font-size: 1.35rem;
+      line-height: 1;
+      opacity: 1;
+      flex-shrink: 0;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.22));
+    }
+    .kpi-label {
+      font-size: 0.55rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1px;
+      line-height: 1.15;
+    }
+    .kpi-num {
+      font-size: 0.86rem;
+      font-weight: 800;
+      margin: 2px 0;
+      line-height: 1.15;
+      word-break: break-word;
+    }
+    .kpi-unit {
+      font-size: 0.54rem;
+      padding: 2px 5px;
+      display: inline-block;
+    }
+    .kpi-unit {
+      font-size: 0.74rem;
+      font-weight: 700;
+      background: rgba(15, 23, 42, 0.25);
+      color: #ffffff;
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+
+    /* Kad Carta */
+    .chart-section {
+      background: var(--card);
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      border-top: 5px solid #0284c7;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+      min-width: 0; /* Elak terkeluar ke tepi pada mobile grid */
+      max-width: 100%;
+      overflow: hidden;
+    }
+    .chart-section.accent-teal    { border-top-color: #0d9488; }
+    .chart-section.accent-amber   { border-top-color: #f59e0b; }
+    .chart-section.accent-purple  { border-top-color: #7c3aed; }
+    .chart-section.accent-pink    { border-top-color: #db2777; }
+    .chart-section.accent-indigo  { border-top-color: #4f46e5; }
+    .chart-section.accent-emerald { border-top-color: #059669; }
+
+    .chart-top {
+      margin-bottom: 12px;
+    }
+    .chart-title {
+      margin: 0 0 8px 0;
+      font-size: 1.02rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .metric-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+    .badge.rm {
+      background: #fce7f3;
+      color: #be185d;
+    }
+    .badge.avg {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .badge.purple {
+      background: #f3e8ff;
+      color: #5b21b6;
+    }
+
+    .canvas-container {
+      position: relative;
+      width: 100%;
+      height: 330px;
+    }
+    .canvas-container.tall {
+      height: 430px;
+    }
+    .canvas-container.pie-box {
+      position: relative;
+      width: 100%;
+      max-width: 100%;
+      height: 290px;
+      margin: 0 auto;
+    }
+
+    /* Carta Pai Menegak (1 Lajur) di Smartphone; 3 Lajur di Komputer */
+    .pie-row-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 16px;
+      width: 100%;
+    }
+
+    /* Baris 2 Carta Bersebelahan untuk Komputer (1 lajur di smartphone) */
+    .chart-row-2col {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 16px;
+      width: 100%;
+    }
+
+    /* Baris 2 Jadual Bersebelahan (Spesies & Daerah) */
+    .dual-table-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 16px;
+      width: 100%;
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin-top: 8px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      max-height: 480px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    th {
+      background: linear-gradient(90deg, #0369a1, #0d9488);
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.75rem;
+      padding: 11px 8px;
+      text-align: left;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+    th:hover {
+      background: #0284c7;
+    }
+    .sort-icon {
+      display: inline-block;
+      margin-left: 4px;
+      font-size: 0.7rem;
+    }
+    td {
+      padding: 9px 8px;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    tbody tr:nth-child(even) {
+      background: #f8fafc;
+    }
+    tbody tr:hover {
+      background: #e0f2fe;
+    }
+    td.num, th.num {
+      text-align: right;
+    }
+
+    #loader {
+      text-align: center;
+      padding: 70px 20px;
+      background: var(--card);
+      border-radius: 16px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #0369a1;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+    }
+
+    @media (min-width: 1024px) {
+      body { padding: 20px 0; }
+      .vertical-wrapper { width: 90%; max-width: 90%; }
+      .header-text h1 { font-size: 1.65rem; }
+      .filter-card { position: static; padding: 16px; border-radius: 16px; box-shadow: 0 6px 16px rgba(14, 165, 233, 0.08); }
+      .kpi-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; }
+      .kpi-box { flex-direction: row; align-items: center; padding: 18px 20px; border-radius: 16px; }
+      .kpi-icon-clean { font-size: 3.1rem; }
+      .kpi-label { font-size: 0.76rem; }
+      .kpi-num { font-size: 1.55rem; }
+      .kpi-unit { font-size: 0.74rem; padding: 3px 10px; }
+      .filter-grid { grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+      .filter-item.full { grid-column: span 1; }
+      .filter-item label { font-size: 0.74rem; }
+      .ms-btn { padding: 9px 11px; font-size: 0.85rem; }
+      .ms-dropdown {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        min-width: 240px;
+        max-width: 300px;
+        padding: 10px;
+      }
+      .chart-row-2col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .pie-row-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+      .dual-table-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .canvas-container { height: 380px; }
+      .canvas-container.tall { height: 470px; }
+      .canvas-container.pie-box { height: 320px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="vertical-wrapper">
+    <!-- Tajuk Utama + Logo DOF Tanpa Latar Putih -->
+    <div class="header-card">
+      <div class="logo-wrap">
+        <img src="https://raw.githubusercontent.com/usopdrahman/logbookdof/1f784168ab48de031417c6fcb8677322765604eb/DOF%20LOGO.png" alt="Logo Jabatan Perikanan Malaysia (DOF)">
+      </div>
+      <div class="header-text">
+        <h1>Dashboard Akuakultur Malaysia</h1>
+        <p>Jabatan Perikanan Malaysia (DOF) — Analisis Pengeluaran, Nilai Borong &amp; Harga Purata (RM/kg)</p>
+      </div>
+    </div>
+
+    <div id="loader">"Doa Sebelum Makan - Allahumma barik lana fima razaqtana waqina 'adzaban nar - Ya Allah, berkatilah kami pada apa yang Engkau rezekikan kepada kami, dan peliharalah kami dari seksaan api neraka"</div>
+
+    <div id="dashboardContent" style="display:none; flex-direction:column; gap:16px;">
+      
+      <!-- Panel Penapis Sticky di Atas -->
+      <div class="filter-card">
+        <div class="filter-header">
+          <div class="filter-title-wrap">
+            <span class="f-title">Penapis Data</span>
+            <span class="active-summary-pill" id="activeFilterBadge">Memuatkan penapis...</span>
+          </div>
+          <div class="filter-btn-group">
+            <button type="button" class="btn-collapse" id="btnToggleFilter" onclick="toggleFilterGrid()">Sembunyi Penapis ▲</button>
+            <button type="button" class="btn-default" onclick="applyDefaultPreset()">Tetapan Lalai</button>
+            <button type="button" class="btn-reset" onclick="resetAllFilters()">Reset Semua</button>
+          </div>
+        </div>
+        <div class="filter-grid" id="filterGridBody">
+          <div class="filter-item" id="wrap-tahun"></div>
+          <div class="filter-item" id="wrap-negeri"></div>
+          <div class="filter-item" id="wrap-daerah"></div>
+          <div class="filter-item" id="wrap-jenisAkua"></div>
+          <div class="filter-item" id="wrap-sTernakan"></div>
+          <div class="filter-item" id="wrap-kumpSpesies"></div>
+          <div class="filter-item full" id="wrap-spesis"></div>
+        </div>
+      </div>
+
+      <!-- Notis Unit Campuran -->
+      <div id="unitNotice" class="unit-notice">
+        Nota: Anda sedang menggabungkan kategori Jenis Akua dengan unit pengeluaran berbeza (Tan Metrik, Ekor, atau Ikat). Sila tapis Jenis Akua khusus untuk bacaan unit yang seragam.
+      </div>
+
+      <!-- 3 Kad KPI Utama -->
+      <div class="kpi-grid">
+        <div class="kpi-box blue">
+          <div>
+            <div class="kpi-label">Jumlah Pengeluaran</div>
+            <div class="kpi-num" id="kpiPengeluaran">0</div>
+            <div class="kpi-unit" id="kpiUnitLabel">Tan Metrik</div>
+          </div>
+          <div class="kpi-icon-clean">⚖️</div>
+        </div>
+        <div class="kpi-box teal">
+          <div>
+            <div class="kpi-label">Jumlah Nilai Borong</div>
+            <div class="kpi-num" id="kpiNilai">RM 0</div>
+            <div class="kpi-unit">Ringgit Malaysia (RM)</div>
+          </div>
+          <div class="kpi-icon-clean">💰</div>
+        </div>
+        <div class="kpi-box amber">
+          <div>
+            <div class="kpi-label">Purata Harga Borong</div>
+            <div class="kpi-num" id="kpiHarga">RM 0.00</div>
+            <div class="kpi-unit" id="kpiHargaUnit">RM / kg</div>
+          </div>
+          <div class="kpi-icon-clean">🏷️</div>
+        </div>
+      </div>
+
+      <!-- BARIS 1: CARTA 1 & CARTA 2 -->
+      <div class="chart-row-2col">
+        <!-- CARTA 1: Trend Bulanan -->
+        <div class="chart-section">
+          <div class="chart-top">
+            <h2 class="chart-title">1. Trend Bulanan: Pengeluaran vs Nilai Borong</h2>
+            <div class="metric-badges">
+              <span class="badge" id="badgeC1Unit">Bar: Pengeluaran (Tan Metrik)</span>
+              <span class="badge rm">Garis: Nilai Borong (RM)</span>
+            </div>
+          </div>
+          <div class="canvas-container">
+            <canvas id="cMonthlyDual"></canvas>
+          </div>
+        </div>
+
+        <!-- CARTA 2: Trend Bulanan Purata Harga Borong -->
+        <div class="chart-section accent-amber">
+          <div class="chart-top">
+            <h2 class="chart-title">2. Trend Bulanan Purata Harga Borong</h2>
+            <div class="metric-badges">
+              <span class="badge avg" id="badgeC2Price">Garis: Purata Harga Borong (RM / kg)</span>
+            </div>
+          </div>
+          <div class="canvas-container">
+            <canvas id="cMonthlyPrice"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- BARIS 2: CARTA 3 & CARTA 4 -->
+      <div class="chart-row-2col">
+        <!-- CARTA 3: Prestasi Tahunan (Tidak Terikat Penapis Tahun) -->
+        <div class="chart-section accent-purple">
+          <div class="chart-top">
+            <h2 class="chart-title">3. Prestasi Tahunan (Bebas Penapis Tahun)</h2>
+            <div class="metric-badges">
+              <span class="badge purple" id="badgeC3Unit">Bar: Pengeluaran (Tan Metrik)</span>
+              <span class="badge rm">Garis: Nilai Borong (RM)</span>
+            </div>
+          </div>
+          <div class="canvas-container tall">
+            <canvas id="cYearly"></canvas>
+          </div>
+        </div>
+
+        <!-- CARTA 4: Kedudukan Negeri / Daerah (Dengan Bendera) -->
+        <div class="chart-section accent-emerald">
+          <div class="chart-top">
+            <h2 class="chart-title" id="titleC4">4. Kedudukan Negeri: Pengeluaran vs Nilai Borong</h2>
+            <div class="metric-badges">
+              <span class="badge" id="badgeC4Unit">Bar: Pengeluaran (Tan Metrik)</span>
+              <span class="badge rm">Garis: Nilai Borong (RM)</span>
+            </div>
+          </div>
+          <div class="canvas-container tall">
+            <canvas id="cGeoCombined"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- BARIS 5: 3 CARTA PIE DALAM 1 BARIS (Mobile Friendly) -->
+      <div class="pie-row-grid">
+        <div class="chart-section accent-pink">
+          <div class="chart-top">
+            <h2 class="chart-title">5A. Pecahan Jenis Akua</h2>
+            <div class="metric-badges">
+              <span class="badge purple" id="badgePie1">Pengeluaran (%)</span>
+            </div>
+          </div>
+          <div class="canvas-container pie-box">
+            <canvas id="cPieJenis"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-section accent-purple">
+          <div class="chart-top">
+            <h2 class="chart-title">5B. Pecahan Kumpulan Spesies</h2>
+            <div class="metric-badges">
+              <span class="badge purple" id="badgePie2">Pengeluaran (%)</span>
+            </div>
+          </div>
+          <div class="canvas-container pie-box">
+            <canvas id="cPieKump"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-section accent-teal">
+          <div class="chart-top">
+            <h2 class="chart-title">5C. Pecahan Spesies (Top 8)</h2>
+            <div class="metric-badges">
+              <span class="badge purple" id="badgePie3">Pengeluaran (%)</span>
+            </div>
+          </div>
+          <div class="canvas-container pie-box">
+            <canvas id="cPieSpesis"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- BARIS 4: CARTA 6 & CARTA 7 -->
+      <div class="chart-row-2col">
+        <!-- CARTA 6: Sistem Ternakan -->
+        <div class="chart-section accent-indigo">
+          <div class="chart-top">
+            <h2 class="chart-title">6. Perbandingan Sistem Ternakan (S.TERNAKAN)</h2>
+            <div class="metric-badges">
+              <span class="badge purple" id="badgeC6Unit">Bar: Pengeluaran (Tan Metrik)</span>
+              <span class="badge rm">Garis: Nilai Borong (RM)</span>
+            </div>
+          </div>
+          <div class="canvas-container tall">
+            <canvas id="cSistem"></canvas>
+          </div>
+        </div>
+
+        <!-- CARTA 7: Top 10 Kumpulan Spesies -->
+        <div class="chart-section accent-teal">
+          <div class="chart-top">
+            <h2 class="chart-title">7. Top 10 Kumpulan Spesies: Pengeluaran vs Nilai Borong</h2>
+            <div class="metric-badges">
+              <span class="badge" id="badgeC7Unit">Bar: Pengeluaran (Tan Metrik)</span>
+              <span class="badge rm">Garis: Nilai Borong (RM)</span>
+            </div>
+          </div>
+          <div class="canvas-container tall">
+            <canvas id="cSpesiesCombined"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- BARIS 8: DUA JADUAL BERSEBELAHAN (Jadual Spesies & Jadual Daerah) -->
+      <div class="dual-table-grid">
+        <!-- Jadual 8A: Ringkasan Spesies -->
+        <div class="chart-section accent-teal">
+          <div class="chart-top">
+            <h2 class="chart-title">8A. Jadual Ringkasan Spesies (Klik Lajur Susun)</h2>
+            <div class="metric-badges">
+              <span class="badge" id="badgeTblUnit">Pengeluaran</span>
+              <span class="badge rm">Nilai Borong (RM)</span>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th onclick="sortSpeciesTable('spesis')">Spesies <span class="sort-icon" id="sort-sp-spesis">⇅</span></th>
+                  <th onclick="sortSpeciesTable('kump')">Kumpulan <span class="sort-icon" id="sort-sp-kump">⇅</span></th>
+                  <th class="num" onclick="sortSpeciesTable('peng')"><span id="thSpPeng">Pengeluaran</span> <span class="sort-icon" id="sort-sp-peng">⇅</span></th>
+                  <th class="num" onclick="sortSpeciesTable('rm')">Nilai Borong <span class="sort-icon" id="sort-sp-rm">▼</span></th>
+                  <th class="num" onclick="sortSpeciesTable('avg')"><span id="thSpHarga">RM/kg</span> <span class="sort-icon" id="sort-sp-avg">⇅</span></th>
+                </tr>
+              </thead>
+              <tbody id="tableBodySpecies"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Jadual 8B: Ringkasan Daerah -->
+        <div class="chart-section accent-indigo">
+          <div class="chart-top">
+            <h2 class="chart-title">8B. Jadual Ringkasan Daerah (Klik Lajur Susun)</h2>
+            <div class="metric-badges">
+              <span class="badge purple" id="badgeTblDaerahUnit">Pengeluaran</span>
+              <span class="badge rm">Nilai Borong (RM)</span>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th onclick="sortDaerahTable('daerah')">Daerah <span class="sort-icon" id="sort-dr-daerah">⇅</span></th>
+                  <th onclick="sortDaerahTable('negeri')">Negeri <span class="sort-icon" id="sort-dr-negeri">⇅</span></th>
+                  <th class="num" onclick="sortDaerahTable('peng')"><span id="thDrPeng">Pengeluaran</span> <span class="sort-icon" id="sort-dr-peng">⇅</span></th>
+                  <th class="num" onclick="sortDaerahTable('rm')">Nilai Borong <span class="sort-icon" id="sort-dr-rm">▼</span></th>
+                  <th class="num" onclick="sortDaerahTable('avg')"><span id="thDrHarga">RM/kg</span> <span class="sort-icon" id="sort-dr-avg">⇅</span></th>
+                </tr>
+              </thead>
+              <tbody id="tableBodyDaerah"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    Chart.register(ChartDataLabels);
+
+    let rawData = [];
+    let chartInstances = {};
+    let speciesSort = { col: 'rm', dir: 'desc' };
+    let daerahSort  = { col: 'rm', dir: 'desc' };
+    let showAllSpeciesRows = false;
+    let showAllDaerahRows  = false;
+
+    const BULAN = ['', 'Jan', 'Feb', 'Mac', 'Apr', 'Mei', 'Jun', 'Jul', 'Ogos', 'Sep', 'Okt', 'Nov', 'Dis'];
+    const PIE_COLORS = [
+      '#0284c7', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899',
+      '#06b6d4', '#f97316', '#6366f1', '#14b8a6', '#e11d48'
+    ];
+
+    // Jana bendera negeri SVG dalaman (bebas CORS, 100% muncul tanpa internet luaran)
+    function makeFlagSvg(innerSvg) {
+      return 'data:image/svg+xml;utf8,' + encodeURIComponent(
+        `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="20" viewBox="0 0 32 20">${innerSvg}</svg>`
+      );
+    }
+
+    const STATE_FLAGS = {
+      'JOHOR': makeFlagSvg('<rect width="32" height="20" fill="#002b7f"/><rect width="16" height="11" fill="#ce1126"/><circle cx="7" cy="5.5" r="3" fill="#fff"/><circle cx="8" cy="5.5" r="2.4" fill="#ce1126"/><polygon points="10.5,5.5 11.4,6.4 10.2,6.1 9.5,7 9.6,5.8 8.6,5.2 9.7,4.9 10,3.8 10.6,4.8 11.7,4.7" fill="#fff"/>'),
+      'KEDAH': makeFlagSvg('<rect width="32" height="20" fill="#ce1126"/><circle cx="8" cy="7" r="4" fill="#fcd116"/><path d="M5 12 Q8 15 11 12" stroke="#009e49" stroke-width="2" fill="none"/>'),
+      'KELANTAN': makeFlagSvg('<rect width="32" height="20" fill="#ce1126"/><circle cx="16" cy="10" r="5" fill="#fff"/><circle cx="16" cy="9" r="3.5" fill="#ce1126"/><polygon points="16,6 17,9 14.5,7.3 17.5,7.3 15,9" fill="#fff"/>'),
+      'MELAKA': makeFlagSvg('<rect width="32" height="10" fill="#fff"/><rect y="10" width="32" height="10" fill="#ce1126"/><rect width="16" height="10" fill="#002b7f"/><circle cx="7" cy="5" r="2.8" fill="#fcd116"/><circle cx="8" cy="5" r="2.3" fill="#002b7f"/><polygon points="10.5,5 11.3,5.8 10.2,5.5 9.6,6.3 9.7,5.2 8.8,4.7 9.8,4.4 10.1,3.4 10.6,4.3 11.6,4.2" fill="#fcd116"/>'),
+      'NEGERI SEMBILAN': makeFlagSvg('<rect width="32" height="20" fill="#fcd116"/><polygon points="0,0 16,10 0,10" fill="#ce1126"/><polygon points="0,0 16,0 16,10" fill="#111"/>'),
+      'PAHANG': makeFlagSvg('<rect width="32" height="10" fill="#ffffff"/><rect y="10" width="32" height="10" fill="#111111"/>'),
+      'PERAK': makeFlagSvg('<rect width="32" height="6.7" fill="#ffffff"/><rect y="6.7" width="32" height="6.7" fill="#fcd116"/><rect y="13.4" width="32" height="6.6" fill="#111111"/>'),
+      'PERLIS': makeFlagSvg('<rect width="32" height="10" fill="#fcd116"/><rect y="10" width="32" height="10" fill="#002b7f"/>'),
+      'PULAU PINANG': makeFlagSvg('<rect width="10.7" height="20" fill="#0099ff"/><rect x="10.7" width="10.6" height="20" fill="#ffffff"/><rect x="21.3" width="10.7" height="20" fill="#fcd116"/><polygon points="16,6 14,11 18,11" fill="#009e49"/><rect x="15.3" y="11" width="1.4" height="4" fill="#78350f"/>'),
+      'SABAH': makeFlagSvg('<rect width="32" height="6.7" fill="#0055a4"/><rect y="6.7" width="32" height="6.7" fill="#ffffff"/><rect y="13.4" width="32" height="6.6" fill="#ce1126"/><rect width="14" height="10" fill="#38bdf8"/><polygon points="3,8 7,3 11,8" fill="#002b7f"/>'),
+      'SARAWAK': makeFlagSvg('<rect width="32" height="20" fill="#fcd116"/><polygon points="0,0 32,14 32,20 0,6" fill="#111"/><polygon points="0,6 32,20 20,20 0,11" fill="#ce1126"/><polygon points="16,6 17.5,9.5 21,9.5 18.2,11.6 19.2,15 16,12.8 12.8,15 13.8,11.6 11,9.5 14.5,9.5" fill="#fcd116"/>'),
+      'SELANGOR': makeFlagSvg('<rect width="16" height="10" fill="#ce1126"/><rect x="16" width="16" height="10" fill="#fcd116"/><rect y="10" width="16" height="10" fill="#fcd116"/><rect x="16" y="10" width="16" height="10" fill="#ce1126"/><circle cx="7.5" cy="5" r="2.8" fill="#fff"/><circle cx="8.5" cy="5" r="2.2" fill="#ce1126"/>'),
+      'TERENGGANU': makeFlagSvg('<rect width="32" height="20" fill="#111111"/><rect width="8" height="20" fill="#ffffff"/><circle cx="19" cy="10" r="4.5" fill="#fff"/><circle cx="20.3" cy="10" r="3.6" fill="#111"/><polygon points="22,10 23.2,11.2 21.6,10.8 20.8,12 20.9,10.4 19.6,9.6 21.1,9.2 21.5,7.8 22.3,9.1 23.8,9" fill="#fff"/>'),
+      'KUALA LUMPUR': makeFlagSvg('<rect width="32" height="20" fill="#ce1126"/><rect y="3" width="32" height="2.5" fill="#fff"/><rect y="8" width="32" height="2.5" fill="#fff"/><rect y="13" width="32" height="2.5" fill="#fff"/><rect width="15" height="11" fill="#002b7f"/><circle cx="7" cy="5.5" r="2.8" fill="#fcd116"/><circle cx="8" cy="5.5" r="2.2" fill="#002b7f"/>'),
+      'LABUAN': makeFlagSvg('<rect width="32" height="6.7" fill="#ce1126"/><rect y="6.7" width="32" height="6.7" fill="#ffffff"/><rect y="13.4" width="32" height="6.6" fill="#002b7f"/><circle cx="16" cy="10" r="3" fill="#fcd116"/><circle cx="17" cy="10" r="2.4" fill="#fff"/>'),
+      'PUTRAJAYA': makeFlagSvg('<rect width="32" height="20" fill="#002b7f"/><rect x="8" width="16" height="20" fill="#fcd116"/><circle cx="16" cy="10" r="4.5" fill="#002b7f"/><circle cx="16" cy="9" r="3.5" fill="#fcd116"/>')
+    };
+
+    const flagImageCache = {};
+    function resolveStateKey(name) {
+      const up = String(name || '').toUpperCase().trim();
+      if (up.includes('JOHOR')) return 'JOHOR';
+      if (up.includes('KEDAH')) return 'KEDAH';
+      if (up.includes('KELANTAN')) return 'KELANTAN';
+      if (up.includes('MELAKA') || up.includes('MALACCA')) return 'MELAKA';
+      if (up.includes('SEMBILAN')) return 'NEGERI SEMBILAN';
+      if (up.includes('PAHANG')) return 'PAHANG';
+      if (up.includes('PERAK')) return 'PERAK';
+      if (up.includes('PERLIS')) return 'PERLIS';
+      if (up.includes('PINANG') || up.includes('PENANG')) return 'PULAU PINANG';
+      if (up.includes('SABAH')) return 'SABAH';
+      if (up.includes('SARAWAK')) return 'SARAWAK';
+      if (up.includes('SELANGOR')) return 'SELANGOR';
+      if (up.includes('TERENGGANU')) return 'TERENGGANU';
+      if (up.includes('LUMPUR') || up === 'KL') return 'KUALA LUMPUR';
+      if (up.includes('LABUAN')) return 'LABUAN';
+      if (up.includes('PUTRAJAYA')) return 'PUTRAJAYA';
+      return null;
+    }
+
+    function getStateMeta(name) {
+      const key = resolveStateKey(name);
+      if (key && STATE_FLAGS[key]) {
+        if (!flagImageCache[key]) {
+          const img = new Image();
+          img.onload = () => {
+            if (chartInstances['cGeoCombined']) {
+              chartInstances['cGeoCombined'].draw();
+            }
+          };
+          img.src = STATE_FLAGS[key];
+          flagImageCache[key] = img;
+        }
+        return { img: flagImageCache[key] };
+      }
+      return { img: null };
+    }
+
+    // Plugin Chart.js untuk lukis bendera negeri tepat di bawah teks nama negeri
+    const stateFlagPlugin = {
+      id: 'stateFlagPlugin',
+      afterDatasetsDraw(chart) {
+        if (!chart.config._showStateFlags) return;
+        const { ctx, scales: { x } } = chart;
+        if (!x) return;
+        x.ticks.forEach((tick, idx) => {
+          const label = chart.data.labels[idx];
+          const meta = getStateMeta(label);
+          if (meta.img && meta.img.complete && meta.img.naturalWidth > 0) {
+            const xPos = x.getPixelForTick(idx);
+            const yPos = x.bottom - 20;
+            ctx.save();
+            ctx.drawImage(meta.img, xPos - 14, yPos, 28, 17);
+            ctx.strokeStyle = '#64748b';
+            ctx.lineWidth = 0.8;
+            ctx.strokeRect(xPos - 14, yPos, 28, 17);
+            ctx.restore();
+          }
+        });
+      }
+    };
+    Chart.register(stateFlagPlugin);
+
+    const FILTER_CONFIG = [
+      { key: 'tahun',       label: 'Tahun',            allText: 'Semua Tahun' },
+      { key: 'negeri',      label: 'Negeri',           allText: 'Semua Negeri' },
+      { key: 'daerah',      label: 'Daerah',           allText: 'Semua Daerah' },
+      { key: 'jenisAkua',   label: 'Jenis Akua',       allText: 'Semua Jenis Akua' },
+      { key: 'sTernakan',   label: 'Sistem Ternakan',  allText: 'Semua Sistem' },
+      { key: 'kumpSpesies', label: 'Kumpulan Spesies', allText: 'Semua Kumpulan' },
+      { key: 'spesis',      label: 'Spesies',          allText: 'Semua Spesies' }
+    ];
+
+    const selectedFilters = {
+      tahun: new Set(),
+      negeri: new Set(),
+      daerah: new Set(),
+      jenisAkua: new Set(),
+      sTernakan: new Set(),
+      kumpSpesies: new Set(),
+      spesis: new Set()
+    };
+
+    function toggleFilterGrid() {
+      const grid = document.getElementById('filterGridBody');
+      const btn  = document.getElementById('btnToggleFilter');
+      grid.classList.toggle('collapsed');
+      btn.innerText = grid.classList.contains('collapsed') ? 'Papar Penapis ▼' : 'Sembunyi Penapis ▲';
+    }
+
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.ms-container')) {
+        document.querySelectorAll('.ms-dropdown').forEach(el => el.classList.remove('open'));
+      }
+    });
+
+    const APPS_SCRIPT_API_URL = 'https://script.google.com/macros/s/AKfycbyVcScnVPV9uRb1Jy5k6223khpRdKUFlYj4CqXfNREWwr0QtjaU_DtIVJQR511SvIsVfA/exec';
+
+    window.onload = function() {
+      buildFilterUI();
+      fetch(APPS_SCRIPT_API_URL)
+        .then(response => {
+          if (!response.ok) throw new Error('Ralat rangkaian: ' + response.status);
+          return response.json();
+        })
+        .then(arr => {
+          const mapped = (arr || []).map(r => ({
+            tahun: r[0], month: r[1], negeri: r[2], daerah: r[3],
+            jenisAkua: r[4], sTernakan: r[5], kumpSpesies: r[6], spesis: r[7],
+            pengeluaran: r[8], nilaiBorong: r[9]
+          }));
+          initDashboard(mapped);
+        })
+        .catch(err => {
+          document.getElementById('loader').innerText = 'Ralat memuatkan data: ' + err.message;
+        });
+    };
+
+    function buildFilterUI() {
+      FILTER_CONFIG.forEach(cfg => {
+        const wrap = document.getElementById(`wrap-${cfg.key}`);
+        wrap.innerHTML = `
+          <label>${cfg.label}</label>
+          <div class="ms-container" id="ms-${cfg.key}">
+            <button type="button" class="ms-btn" onclick="toggleDropdown('${cfg.key}')">
+              <span class="ms-btn-text" id="btnText-${cfg.key}">${cfg.allText}</span>
+              <span>▼</span>
+            </button>
+            <div class="ms-dropdown" id="drop-${cfg.key}">
+              <input type="text" class="ms-search" placeholder="Cari ${cfg.label}..." oninput="filterOptionsList('${cfg.key}', this.value)">
+              <div class="ms-actions">
+                <button type="button" onclick="selectAllOptions('${cfg.key}')">Pilih Semua</button>
+                <button type="button" onclick="clearOptions('${cfg.key}')">Kosongkan</button>
+              </div>
+              <div class="ms-list" id="list-${cfg.key}"></div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function toggleDropdown(key) {
+      const target = document.getElementById(`drop-${key}`);
+      const isOpen = target.classList.contains('open');
+      document.querySelectorAll('.ms-dropdown').forEach(el => el.classList.remove('open'));
+      if (!isOpen) target.classList.add('open');
+    }
+
+    function filterOptionsList(key, query) {
+      const q = query.toLowerCase();
+      document.querySelectorAll(`#list-${key} .ms-option`).forEach(label => {
+        label.style.display = label.textContent.toLowerCase().includes(q) ? 'flex' : 'none';
+      });
+    }
+
+    function selectAllOptions(key) {
+      document.querySelectorAll(`#list-${key} input[type="checkbox"]`).forEach(cb => {
+        if (cb.parentElement.style.display !== 'none') {
+          cb.checked = true;
+          selectedFilters[key].add(cb.value);
+        }
+      });
+      onFilterChanged(key);
+    }
+
+    function clearOptions(key) {
+      selectedFilters[key].clear();
+      document.querySelectorAll(`#list-${key} input[type="checkbox"]`).forEach(cb => cb.checked = false);
+      onFilterChanged(key);
+    }
+
+    // Tetapan Lalai: Tahun Paling Terkini + Air Tawar & Air Payau (kecuali Hiasan) + Semua Negeri kecuali Sabah
+    function applyDefaultPreset() {
+      Object.keys(selectedFilters).forEach(k => selectedFilters[k].clear());
+
+      const allYears = [...new Set(rawData.map(d => d.tahun).filter(Boolean))].sort();
+      if (allYears.length > 0) {
+        selectedFilters.tahun.add(allYears[allYears.length - 1]);
+      }
+
+      const allJenis = [...new Set(rawData.map(d => d.jenisAkua).filter(Boolean))];
+      allJenis.forEach(j => {
+        const up = j.toUpperCase();
+        if ((up.includes('AIR TAWAR') || up.includes('AIR PAYAU')) && !up.includes('HIASAN')) {
+          selectedFilters.jenisAkua.add(j);
+        }
+      });
+
+      const allNegeri = [...new Set(rawData.map(d => d.negeri).filter(Boolean))];
+      allNegeri.forEach(n => {
+        if (!n.toUpperCase().includes('SABAH')) {
+          selectedFilters.negeri.add(n);
+        }
+      });
+
+      refreshCascadingOptions();
+      updateDashboard();
+    }
+
+    function resetAllFilters() {
+      Object.keys(selectedFilters).forEach(k => selectedFilters[k].clear());
+      refreshCascadingOptions();
+      updateDashboard();
+    }
+
+    function initDashboard(data) {
+      rawData = data || [];
+      // Preload bendera negeri
+      rawData.forEach(d => getStateMeta(d.negeri));
+      document.getElementById('loader').style.display = 'none';
+      document.getElementById('dashboardContent').style.display = 'flex';
+      applyDefaultPreset();
+    }
+
+    function refreshCascadingOptions() {
+      FILTER_CONFIG.forEach(cfg => {
+        const key = cfg.key;
+        const subset = rawData.filter(d => {
+          if (key !== 'tahun' && selectedFilters.tahun.size > 0 && !selectedFilters.tahun.has(d.tahun)) return false;
+          if (key !== 'negeri' && selectedFilters.negeri.size > 0 && !selectedFilters.negeri.has(d.negeri)) return false;
+          if (key === 'daerah' && selectedFilters.negeri.size > 0 && !selectedFilters.negeri.has(d.negeri)) return false;
+          if (key !== 'jenisAkua' && selectedFilters.jenisAkua.size > 0 && !selectedFilters.jenisAkua.has(d.jenisAkua)) return false;
+          if ((key === 'kumpSpesies' || key === 'spesis') && selectedFilters.sTernakan.size > 0 && !selectedFilters.sTernakan.has(d.sTernakan)) return false;
+          if (key === 'spesis' && selectedFilters.kumpSpesies.size > 0 && !selectedFilters.kumpSpesies.has(d.kumpSpesies)) return false;
+          return true;
+        });
+
+        const uniqueVals = [...new Set(subset.map(d => d[key]).filter(Boolean))].sort();
+        const validSet = new Set(uniqueVals);
+
+        [...selectedFilters[key]].forEach(v => {
+          if (!validSet.has(v)) selectedFilters[key].delete(v);
+        });
+
+        const listEl = document.getElementById(`list-${key}`);
+        listEl.innerHTML = '';
+        uniqueVals.forEach(val => {
+          const lbl = document.createElement('label');
+          lbl.className = 'ms-option';
+          const cb = document.createElement('input');
+          cb.type = 'checkbox';
+          cb.value = val;
+          cb.checked = selectedFilters[key].has(val);
+          cb.onchange = function() {
+            if (this.checked) selectedFilters[key].add(val);
+            else selectedFilters[key].delete(val);
+            onFilterChanged(key);
+          };
+          lbl.appendChild(cb);
+          lbl.appendChild(document.createTextNode(val));
+          listEl.appendChild(lbl);
+        });
+
+        updateButtonLabel(cfg);
+      });
+
+      // Kemas kini lencana ringkasan penapis aktif di sticky header
+      const activeSummary = [];
+      FILTER_CONFIG.forEach(cfg => {
+        const s = selectedFilters[cfg.key];
+        if (s.size > 0) {
+          activeSummary.push(s.size <= 2 ? [...s].join(', ') : `${cfg.label} (${s.size})`);
+        }
+      });
+      document.getElementById('activeFilterBadge').innerText =
+        activeSummary.length > 0 ? activeSummary.join(' | ') : 'Semua Data Dipaparkan';
+    }
+
+    function updateButtonLabel(cfg) {
+      const set = selectedFilters[cfg.key];
+      const btnText = document.getElementById(`btnText-${cfg.key}`);
+      const btn = btnText.parentElement;
+      if (set.size === 0) {
+        btnText.textContent = cfg.allText;
+        btn.classList.remove('active');
+      } else if (set.size === 1) {
+        btnText.textContent = [...set][0];
+        btn.classList.add('active');
+      } else {
+        btnText.textContent = `${set.size} dipilih`;
+        btn.classList.add('active');
+      }
+    }
+
+    function onFilterChanged(changedKey) {
+      refreshCascadingOptions();
+      updateDashboard();
+    }
+
+    function detectUnitConfig(filteredData) {
+      const jenisSet = new Set(filteredData.map(d => d.jenisAkua.toUpperCase()));
+      if (jenisSet.size === 0) {
+        return { unit: 'Tan Metrik', priceUnit: 'RM / kg', kgFactor: 1000, isMixed: false };
+      }
+
+      const categories = new Set();
+      jenisSet.forEach(j => {
+        if (j.includes('HATCERI') || j.includes('HATCHERI') || j.includes('HIASAN')) {
+          categories.add('EKOR');
+        } else if (j.includes('TUMBUHAN')) {
+          categories.add('IKAT');
+        } else if (j.includes('TAWAR') || j.includes('PAYAU')) {
+          categories.add('TAN');
+        } else {
+          categories.add('TAN');
+        }
+      });
+
+      if (categories.size > 1) {
+        return { unit: 'Unit Campuran', priceUnit: 'RM / Unit', kgFactor: 1, isMixed: true };
+      }
+      const only = [...categories][0];
+      if (only === 'EKOR') return { unit: 'Ekor', priceUnit: 'RM / Ekor', kgFactor: 1, isMixed: false };
+      if (only === 'IKAT') return { unit: 'Ikat', priceUnit: 'RM / Ikat', kgFactor: 1, isMixed: false };
+      return { unit: 'Tan Metrik', priceUnit: 'RM / kg', kgFactor: 1000, isMixed: false };
+    }
+
+    function formatRMShort(val) {
+      const num = Number(val || 0);
+      const abs = Math.abs(num);
+      if (abs >= 1e9) return 'RM ' + (num / 1e9).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' bilion';
+      if (abs >= 1e6) return 'RM ' + (num / 1e6).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' juta';
+      if (abs >= 1e3) return 'RM ' + (num / 1e3).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ribu';
+      return 'RM ' + num.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function formatCompactLabel(val, isRM = false) {
+      const num = Number(val || 0);
+      if (num === 0) return '';
+      const abs = Math.abs(num);
+      const prefix = isRM ? 'RM' : '';
+      if (abs >= 1e9) return prefix + (num / 1e9).toFixed(1) + 'B';
+      if (abs >= 1e6) return prefix + (num / 1e6).toFixed(1) + 'J';
+      if (abs >= 1e3) return prefix + (num / 1e3).toFixed(1) + 'k';
+      return prefix + num.toFixed(abs < 10 ? 2 : 0);
+    }
+
+    function fmtNum(val, dec = 2) {
+      return Number(val || 0).toLocaleString('en-MY', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+    }
+
+    // Penapis umum (includeYear = false digunakan untuk Carta 3 Tahunan supaya bebas penapis Tahun)
+    function getFilteredData(includeYear = true) {
+      return rawData.filter(d =>
+        (!includeYear || selectedFilters.tahun.size === 0 || selectedFilters.tahun.has(d.tahun)) &&
+        (selectedFilters.negeri.size === 0 || selectedFilters.negeri.has(d.negeri)) &&
+        (selectedFilters.daerah.size === 0 || selectedFilters.daerah.has(d.daerah)) &&
+        (selectedFilters.jenisAkua.size === 0 || selectedFilters.jenisAkua.has(d.jenisAkua)) &&
+        (selectedFilters.sTernakan.size === 0 || selectedFilters.sTernakan.has(d.sTernakan)) &&
+        (selectedFilters.kumpSpesies.size === 0 || selectedFilters.kumpSpesies.has(d.kumpSpesies)) &&
+        (selectedFilters.spesis.size === 0 || selectedFilters.spesis.has(d.spesis))
+      );
+    }
+
+    function updateDashboard() {
+      const filtered       = getFilteredData(true);
+      const filteredNoYear = getFilteredData(false); // Khusus untuk Carta Tahunan
+      const uCfg = detectUnitConfig(filtered);
+
+      document.getElementById('unitNotice').style.display = uCfg.isMixed ? 'block' : 'none';
+
+      document.getElementById('kpiUnitLabel').innerText     = uCfg.unit;
+      document.getElementById('kpiHargaUnit').innerText     = uCfg.priceUnit;
+      document.getElementById('badgeC1Unit').innerText      = `Bar: Pengeluaran (${uCfg.unit})`;
+      document.getElementById('badgeC2Price').innerText     = `Garis: Purata Harga Borong (${uCfg.priceUnit})`;
+      document.getElementById('badgeC3Unit').innerText      = `Bar: Pengeluaran (${uCfg.unit})`;
+      document.getElementById('badgeC4Unit').innerText      = `Bar: Pengeluaran (${uCfg.unit})`;
+      document.getElementById('badgePie1').innerText        = `Pengeluaran (${uCfg.unit})`;
+      document.getElementById('badgePie2').innerText        = `Pengeluaran (${uCfg.unit})`;
+      document.getElementById('badgePie3').innerText        = `Pengeluaran (${uCfg.unit})`;
+      document.getElementById('badgeC6Unit').innerText      = `Bar: Pengeluaran (${uCfg.unit})`;
+      document.getElementById('badgeC7Unit').innerText      = `Bar: Pengeluaran (${uCfg.unit})`;
+      document.getElementById('badgeTblUnit').innerText     = `Pengeluaran (${uCfg.unit})`;
+      document.getElementById('badgeTblDaerahUnit').innerText = `Pengeluaran (${uCfg.unit})`;
+      document.getElementById('thSpPeng').innerText         = `Pengeluaran (${uCfg.unit})`;
+      document.getElementById('thSpHarga').innerText        = uCfg.priceUnit;
+      document.getElementById('thDrPeng').innerText         = `Pengeluaran (${uCfg.unit})`;
+      document.getElementById('thDrHarga').innerText        = uCfg.priceUnit;
+
+      updateKPIs(filtered, uCfg);
+      renderAllCharts(filtered, filteredNoYear, uCfg);
+      updateSpeciesTable(filtered, uCfg);
+      updateDaerahTable(filtered, uCfg);
+    }
+
+    function updateKPIs(data, uCfg) {
+      const totPeng  = data.reduce((s, d) => s + d.pengeluaran, 0);
+      const totRM    = data.reduce((s, d) => s + d.nilaiBorong, 0);
+      const avgPrice = totPeng > 0 ? (totRM / (totPeng * uCfg.kgFactor)) : 0;
+
+      const dec = (uCfg.unit === 'Ekor' || uCfg.unit === 'Ikat') ? 0 : 2;
+      document.getElementById('kpiPengeluaran').innerText = fmtNum(totPeng, dec);
+      document.getElementById('kpiNilai').innerText       = formatRMShort(totRM);
+      document.getElementById('kpiHarga').innerText       = 'RM ' + fmtNum(avgPrice, 2);
+    }
+
+    function aggregateBy(data, keyFn) {
+      const res = {};
+      data.forEach(d => {
+        const k = keyFn(d);
+        if (!res[k]) res[k] = { peng: 0, rm: 0 };
+        res[k].peng += d.pengeluaran;
+        res[k].rm   += d.nilaiBorong;
+      });
+      return res;
+    }
+
+    function buildChart(canvasId, config) {
+      if (chartInstances[canvasId]) {
+        chartInstances[canvasId].destroy();
+      }
+      chartInstances[canvasId] = new Chart(document.getElementById(canvasId), config);
+    }
+
+    // Helper pembina carta gabungan dengan kedudukan angka anti-bertindih
+    function buildComboChart(canvasId, labels, pengArr, rmArr, uCfg, barColors, showFlags = false) {
+      const cfg = {
+        _showStateFlags: showFlags,
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              type: 'line',
+              label: 'Nilai Borong (RM)',
+              data: rmArr,
+              borderColor: '#e11d48',
+              backgroundColor: '#e11d48',
+              pointBackgroundColor: '#ffffff',
+              pointBorderColor: '#e11d48',
+              pointBorderWidth: 2,
+              pointRadius: 4,
+              yAxisID: 'y1',
+              tension: 0.3,
+              borderWidth: 3,
+              order: 0,
+              datalabels: {
+                display: true,
+                align: 'top',
+                anchor: 'end',
+                offset: 6,
+                clamp: true,
+                color: '#be123c',
+                backgroundColor: '#ffffff',
+                borderColor: '#fecdd3',
+                borderWidth: 1,
+                borderRadius: 4,
+                padding: { top: 2, bottom: 2, left: 4, right: 4 },
+                font: { weight: 'bold', size: 10 },
+                formatter: v => formatCompactLabel(v, true)
+              }
+            },
+            {
+              type: 'bar',
+              label: `Pengeluaran (${uCfg.unit})`,
+              data: pengArr,
+              backgroundColor: barColors,
+              yAxisID: 'y',
+              borderRadius: 6,
+              order: 1,
+              datalabels: {
+                display: true,
+                anchor: 'end',
+                align: 'start', // Angka di bahagian dalam hujung atas bar supaya tidak bertindih dengan garis di atas
+                offset: 4,
+                clamp: true,
+                color: '#ffffff',
+                textShadowColor: 'rgba(0,0,0,0.65)',
+                textShadowBlur: 4,
+                font: { weight: 'bold', size: 10 },
+                formatter: v => formatCompactLabel(v, false)
+              }
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { top: 28, bottom: showFlags ? 30 : 6 } },
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: true, position: 'top' },
+            tooltip: {
+              callbacks: {
+                label: ctx => ctx.dataset.yAxisID === 'y1'
+                  ? ` Nilai Borong: ${formatRMShort(ctx.raw)}`
+                  : ` Pengeluaran: ${fmtNum(ctx.raw, 2)} ${uCfg.unit}`
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: {
+                padding: 4
+              }
+            },
+            y: {
+              position: 'left',
+              grace: '15%',
+              title: { display: true, text: uCfg.unit },
+              ticks: { callback: v => formatCompactLabel(v, false) }
+            },
+            y1: {
+              position: 'right',
+              grace: '18%',
+              grid: { drawOnChartArea: false },
+              title: { display: true, text: 'Nilai Borong (RM)' },
+              ticks: { callback: v => formatCompactLabel(v, true) }
+            }
+          }
+        }
+      };
+      buildChart(canvasId, cfg);
+    }
+
+    // Helper pembina Carta Pai Responsif
+    function buildPieChart(canvasId, entries, uCfg) {
+      const sorted = [...entries].sort((a, b) => b[1].peng - a[1].peng);
+      let finalItems = sorted;
+      if (sorted.length > 8) {
+        const top8 = sorted.slice(0, 8);
+        const others = sorted.slice(8).reduce((acc, cur) => {
+          acc.peng += cur[1].peng;
+          acc.rm   += cur[1].rm;
+          return acc;
+        }, { peng: 0, rm: 0 });
+        finalItems = [...top8, ['Lain-lain', others]];
+      }
+
+      const totalPeng = finalItems.reduce((s, x) => s + x[1].peng, 0);
+
+      buildChart(canvasId, {
+        type: 'pie',
+        data: {
+          labels: finalItems.map(x => x[0]),
+          datasets: [{
+            data: finalItems.map(x => x[1].peng),
+            backgroundColor: PIE_COLORS,
+            borderWidth: 2,
+            borderColor: '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: 4 },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'bottom',
+              labels: { boxWidth: 10, padding: 8, font: { size: 10 } }
+            },
+            datalabels: {
+              color: '#ffffff',
+              font: { weight: 'bold', size: 10 },
+              formatter: (val) => {
+                if (!totalPeng) return '';
+                const pct = (val / totalPeng) * 100;
+                return pct >= 5 ? pct.toFixed(1) + '%' : '';
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: ctx => {
+                  const val = ctx.raw;
+                  const pct = totalPeng > 0 ? ((val / totalPeng) * 100).toFixed(1) : 0;
+                  return ` ${ctx.label}: ${fmtNum(val, 2)} ${uCfg.unit} (${pct}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function renderAllCharts(data, dataNoYear, uCfg) {
+      // --- 1. Trend Bulanan ---
+      const byMonth = aggregateBy(data, d => d.month);
+      const validMonths = Object.keys(byMonth).map(Number).filter(m => m >= 1 && m <= 12).sort((a, b) => a - b);
+      const mLabels = validMonths.map(m => BULAN[m]);
+      const mPeng   = validMonths.map(m => byMonth[m].peng);
+      const mRM     = validMonths.map(m => byMonth[m].rm);
+      const mAvg    = validMonths.map(m => byMonth[m].peng > 0 ? (byMonth[m].rm / (byMonth[m].peng * uCfg.kgFactor)) : 0);
+
+      buildComboChart('cMonthlyDual', mLabels, mPeng, mRM, uCfg, '#0284c7', false);
+
+      // --- 2. Trend Bulanan Purata Harga Borong ---
+      buildChart('cMonthlyPrice', {
+        type: 'line',
+        data: {
+          labels: mLabels,
+          datasets: [{
+            label: `Purata Harga Borong (${uCfg.priceUnit})`,
+            data: mAvg,
+            borderColor: '#f97316',
+            backgroundColor: 'rgba(249, 115, 22, 0.2)',
+            pointBackgroundColor: '#f59e0b',
+            pointRadius: 4,
+            fill: true,
+            tension: 0.35,
+            borderWidth: 3,
+            datalabels: {
+              display: true,
+              align: 'top',
+              offset: 4,
+              clamp: true,
+              color: '#b45309',
+              backgroundColor: '#ffffff',
+              borderRadius: 4,
+              padding: 2,
+              font: { weight: 'bold', size: 10 },
+              formatter: v => v > 0 ? 'RM' + v.toFixed(2) : ''
+            }
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { top: 24 } },
+          plugins: { legend: { display: true, position: 'top' } },
+          scales: { y: { grace: '15%', title: { display: true, text: uCfg.priceUnit } } }
+        }
+      });
+
+      // --- 3. Prestasi Tahunan (Guna dataNoYear supaya tidak terkesan dengan penapis Tahun) ---
+      const byYear = aggregateBy(dataNoYear, d => d.tahun);
+      const years = Object.keys(byYear).filter(Boolean).sort();
+      buildComboChart(
+        'cYearly',
+        years,
+        years.map(y => byYear[y].peng),
+        years.map(y => byYear[y].rm),
+        uCfg,
+        '#7c3aed',
+        false
+      );
+
+      // --- 4. Kedudukan Negeri / Daerah (Dengan Bendera & Warna Khas Negeri) ---
+      const showDaerah = (selectedFilters.negeri.size === 1 || selectedFilters.daerah.size > 0);
+      const geoField   = showDaerah ? 'daerah' : 'negeri';
+      const geoLabel   = showDaerah
+        ? (selectedFilters.negeri.size === 1 ? `Daerah (${[...selectedFilters.negeri][0]})` : 'Daerah')
+        : 'Negeri';
+
+      document.getElementById('titleC4').innerText = `4. Kedudukan ${geoLabel}: Pengeluaran vs Nilai Borong`;
+      const byGeo = Object.entries(aggregateBy(data, d => d[geoField])).sort((a, b) => b[1].peng - a[1].peng);
+      const geoLabels = byGeo.map(x => x[0]);
+
+      buildComboChart(
+        'cGeoCombined',
+        geoLabels,
+        byGeo.map(x => x[1].peng),
+        byGeo.map(x => x[1].rm),
+        uCfg,
+        '#0d9488', // Warna bar seragam untuk semua negeri / daerah
+        !showDaerah // Papar bendera negeri di bawah nama negeri
+      );
+
+      // --- 5A, 5B, 5C. Tiga Carta Pai Bersebelahan ---
+      buildPieChart('cPieJenis', Object.entries(aggregateBy(data, d => d.jenisAkua)), uCfg);
+      buildPieChart('cPieKump', Object.entries(aggregateBy(data, d => d.kumpSpesies)), uCfg);
+      buildPieChart('cPieSpesis', Object.entries(aggregateBy(data, d => d.spesis)), uCfg);
+
+      // --- 6. Sistem Ternakan ---
+      const bySistem = Object.entries(aggregateBy(data, d => d.sTernakan)).sort((a, b) => b[1].peng - a[1].peng);
+      buildComboChart(
+        'cSistem',
+        bySistem.map(x => x[0]),
+        bySistem.map(x => x[1].peng),
+        bySistem.map(x => x[1].rm),
+        uCfg,
+        '#4f46e5',
+        false
+      );
+
+      // --- 7. Top 10 Kumpulan Spesies ---
+      const topKump = Object.entries(aggregateBy(data, d => d.kumpSpesies))
+        .sort((a, b) => b[1].peng - a[1].peng)
+        .slice(0, 10);
+      buildComboChart(
+        'cSpesiesCombined',
+        topKump.map(x => x[0]),
+        topKump.map(x => x[1].peng),
+        topKump.map(x => x[1].rm),
+        uCfg,
+        '#db2777',
+        false
+      );
+    }
+
+    // --- JADUAL 8A: SPESIES (SORTABLE) ---
+    function sortSpeciesTable(col) {
+      if (speciesSort.col === col) {
+        speciesSort.dir = speciesSort.dir === 'asc' ? 'desc' : 'asc';
+      } else {
+        speciesSort.col = col;
+        speciesSort.dir = (col === 'spesis' || col === 'kump') ? 'asc' : 'desc';
+      }
+      ['spesis', 'kump', 'peng', 'rm', 'avg'].forEach(c => {
+        document.getElementById(`sort-sp-${c}`).innerText =
+          c === speciesSort.col ? (speciesSort.dir === 'asc' ? '▲' : '▼') : '⇅';
+      });
+      const filtered = getFilteredData(true);
+      updateSpeciesTable(filtered, detectUnitConfig(filtered));
+    }
+
+    function toggleAllSpeciesRows() {
+      showAllSpeciesRows = !showAllSpeciesRows;
+      updateDashboard();
+    }
+
+    function updateSpeciesTable(data, uCfg) {
+      const map = {};
+      data.forEach(d => {
+        const key = `${d.spesis}|${d.kumpSpesies}`;
+        if (!map[key]) map[key] = { spesis: d.spesis, kump: d.kumpSpesies, peng: 0, rm: 0 };
+        map[key].peng += d.pengeluaran;
+        map[key].rm   += d.nilaiBorong;
+      });
+
+      const rows = Object.values(map).map(item => ({
+        ...item,
+        avg: item.peng > 0 ? (item.rm / (item.peng * uCfg.kgFactor)) : 0
+      }));
+
+      const { col, dir } = speciesSort;
+      const mult = dir === 'asc' ? 1 : -1;
+      rows.sort((a, b) => typeof a[col] === 'string'
+        ? a[col].localeCompare(b[col]) * mult
+        : (a[col] - b[col]) * mult
+      );
+
+      const limitList = showAllSpeciesRows ? rows : rows.slice(0, 30);
+      const dec = (uCfg.unit === 'Ekor' || uCfg.unit === 'Ikat') ? 0 : 2;
+      let html = '';
+
+      limitList.forEach(item => {
+        html += `
+          <tr>
+            <td><strong>${item.spesis}</strong></td>
+            <td>${item.kump}</td>
+            <td class="num">${fmtNum(item.peng, dec)}</td>
+            <td class="num">${formatRMShort(item.rm)}</td>
+            <td class="num">RM ${fmtNum(item.avg, 2)}</td>
+          </tr>`;
+      });
+
+      if (rows.length > 30) {
+        html += `
+          <tr>
+            <td colspan="5" style="text-align:center; padding:10px; background:#f0f9ff;">
+              <button type="button" onclick="toggleAllSpeciesRows()" style="background:#0284c7; color:#fff; border:none; padding:6px 14px; border-radius:999px; font-weight:700; cursor:pointer; font-size:0.78rem;">
+                ${showAllSpeciesRows ? 'Ringkaskan Top 30 Spesies' : `Papar Semua (${rows.length} Spesies)`}
+              </button>
+            </td>
+          </tr>`;
+      }
+      document.getElementById('tableBodySpecies').innerHTML = html;
+    }
+
+    // --- JADUAL 8B: DAERAH (SORTABLE) ---
+    function sortDaerahTable(col) {
+      if (daerahSort.col === col) {
+        daerahSort.dir = daerahSort.dir === 'asc' ? 'desc' : 'asc';
+      } else {
+        daerahSort.col = col;
+        daerahSort.dir = (col === 'daerah' || col === 'negeri') ? 'asc' : 'desc';
+      }
+      ['daerah', 'negeri', 'peng', 'rm', 'avg'].forEach(c => {
+        document.getElementById(`sort-dr-${c}`).innerText =
+          c === daerahSort.col ? (daerahSort.dir === 'asc' ? '▲' : '▼') : '⇅';
+      });
+      const filtered = getFilteredData(true);
+      updateDaerahTable(filtered, detectUnitConfig(filtered));
+    }
+
+    function toggleAllDaerahRows() {
+      showAllDaerahRows = !showAllDaerahRows;
+      updateDashboard();
+    }
+
+    function updateDaerahTable(data, uCfg) {
+      const map = {};
+      data.forEach(d => {
+        const key = `${d.daerah}|${d.negeri}`;
+        if (!map[key]) map[key] = { daerah: d.daerah, negeri: d.negeri, peng: 0, rm: 0 };
+        map[key].peng += d.pengeluaran;
+        map[key].rm   += d.nilaiBorong;
+      });
+
+      const rows = Object.values(map).map(item => ({
+        ...item,
+        avg: item.peng > 0 ? (item.rm / (item.peng * uCfg.kgFactor)) : 0
+      }));
+
+      const { col, dir } = daerahSort;
+      const mult = dir === 'asc' ? 1 : -1;
+      rows.sort((a, b) => typeof a[col] === 'string'
+        ? a[col].localeCompare(b[col]) * mult
+        : (a[col] - b[col]) * mult
+      );
+
+      const limitList = showAllDaerahRows ? rows : rows.slice(0, 30);
+      const dec = (uCfg.unit === 'Ekor' || uCfg.unit === 'Ikat') ? 0 : 2;
+      let html = '';
+
+      limitList.forEach(item => {
+        html += `
+          <tr>
+            <td><strong>${item.daerah}</strong></td>
+            <td>${item.negeri}</td>
+            <td class="num">${fmtNum(item.peng, dec)}</td>
+            <td class="num">${formatRMShort(item.rm)}</td>
+            <td class="num">RM ${fmtNum(item.avg, 2)}</td>
+          </tr>`;
+      });
+
+      if (rows.length > 30) {
+        html += `
+          <tr>
+            <td colspan="5" style="text-align:center; padding:10px; background:#f5f3ff;">
+              <button type="button" onclick="toggleAllDaerahRows()" style="background:#4f46e5; color:#fff; border:none; padding:6px 14px; border-radius:999px; font-weight:700; cursor:pointer; font-size:0.78rem;">
+                ${showAllDaerahRows ? 'Ringkaskan Top 30 Daerah' : `Papar Semua (${rows.length} Daerah)`}
+              </button>
+            </td>
+          </tr>`;
+      }
+      document.getElementById('tableBodyDaerah').innerHTML = html;
+    }
+  </script>
+</body>
+</html>
