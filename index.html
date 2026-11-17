@@ -516,13 +516,41 @@
 
     #loader {
       text-align: center;
-      padding: 70px 20px;
+      padding: 45px 20px;
       background: var(--card);
       border-radius: 16px;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       font-weight: 700;
       color: #0369a1;
       box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+    .loader-bar-track {
+      width: 100%;
+      max-width: 340px;
+      height: 7px;
+      background: #e0f2fe;
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+    }
+    .loader-bar-fill {
+      width: 42%;
+      height: 100%;
+      background: linear-gradient(90deg, #0284c7, #0d9488, #0284c7);
+      border-radius: 999px;
+      position: absolute;
+      top: 0;
+      left: -42%;
+      animation: slideLoader 1.35s ease-in-out infinite;
+    }
+    @keyframes slideLoader {
+      0%   { left: -42%; width: 35%; }
+      50%  { left: 30%;  width: 55%; }
+      100% { left: 100%; width: 35%; }
     }
 
     .dash-stack {
@@ -591,7 +619,12 @@
       </div>
     </div>
 
-    <div id="loader">"Doa Sebelum Makan - Allahumma barik lana fima razaqtana waqina 'adzaban nar - Ya Allah, berkatilah kami pada apa yang Engkau rezekikan kepada kami, dan peliharalah kami dari seksaan api neraka"</div>
+    <div id="loader">
+      <div class="loader-bar-track">
+        <div class="loader-bar-fill"></div>
+      </div>
+      <div>"Doa Sebelum Makan - Allahumma barik lana fima razaqtana waqina 'adzaban nar - Ya Allah, berkatilah kami pada apa yang Engkau rezekikan kepada kami, dan peliharalah kami dari seksaan api neraka"</div>
+    </div>
 
     <div id="dashboardContent" class="dash-stack">
       
