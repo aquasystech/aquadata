@@ -552,6 +552,12 @@
       50%  { left: 30%;  width: 55%; }
       100% { left: 100%; width: 35%; }
     }
+    #loaderText {
+      max-width: 680px;
+      line-height: 1.5;
+      font-size: 0.96rem;
+      transition: opacity 0.35s ease;
+    }
 
     .dash-stack {
       display: none;
@@ -623,7 +629,7 @@
       <div class="loader-bar-track">
         <div class="loader-bar-fill"></div>
       </div>
-      <div>"Selamat bernavigasi dengan data. Terima kasih"</div>
+      <div id="loaderText">Sedang menyusun angka pengeluaran, nilai borong, dan harga purata Jabatan Perikanan Malaysia (DOF)...</div>
     </div>
 
     <div id="dashboardContent" class="dash-stack">
@@ -1015,9 +1021,41 @@
       }
     });
 
+    const LOADER_QUOTES = [
+      "Info Akuakultur: Sektor akuakultur kini menjadi pemacu utama keterjaminan makanan (food security) negara bagi menampung permintaan sumber protein ikan.",
+      "Tip Dashboard: Gunakan butang 'Tetapan Lalai' untuk memaparkan tahun terkini serta gabungan pengeluaran ternakan air tawar dan air payau secara pantas.",
+      "Fakta Global (FAO): Pengeluaran akuakultur dunia telah mengatasi tangkapan perikanan laut dalam membekalkan sumber ikan untuk kegunaan manusia.",
+      "Tip Paparan Telefon: Anda boleh zum masuk (pinch-to-zoom dengan dua jari) pada mana-mana graf atau jadual untuk melihat angka dengan lebih teliti.",
+      "Info Malaysia: Industri akuakultur negara merangkumi sistem kolam, sangkar, tangki, bekas lombong, serta ternakan kerang-kerangan dan rumpai laut.",
+      "Tip Analisis Daerah: Pilih hanya satu negeri pada penapis Negeri untuk menukar Carta 4 secara automatik daripada kedudukan negeri kepada kedudukan daerah.",
+      "Komoditi Utama: Udang putih, siakap, dan kerapu menyumbang nilai borong tertinggi bagi air payau, manakala tilapia merah, keli, dan patin mendominasi air tawar.",
+      "Tip Jadual Interaktif: Klik pada mana-mana tajuk lajur di Jadual 8A (Spesies) atau Jadual 8B (Daerah) untuk menyusun data daripada tertinggi ke terendah.",
+      "Kualiti & Eksport: Pensijilan Skim Amalan Pertanian Baik Malaysia (MyGAP) memastikan hasil ternakan selamat dimakan dan menepati piawaian antarabangsa.",
+      "Tip Keseragaman Unit: Tapis Jenis Akua secara khusus (Tan Metrik, Ekor, atau Ikat) bagi mengelakkan bacaan unit bercampur pada kad KPI dan carta."
+    ];
+
+    let loaderTimer = null;
+
+    function startLoaderRotation() {
+      const textEl = document.getElementById('loaderText');
+      if (!textEl) return;
+      let idx = Math.floor(Math.random() * LOADER_QUOTES.length);
+      textEl.innerText = LOADER_QUOTES[idx];
+
+      loaderTimer = setInterval(() => {
+        textEl.style.opacity = '0';
+        setTimeout(() => {
+          idx = (idx + 1) % LOADER_QUOTES.length;
+          textEl.innerText = LOADER_QUOTES[idx];
+          textEl.style.opacity = '1';
+        }, 350);
+      }, 3500);
+    }
+
     const APPS_SCRIPT_API_URL = 'https://script.google.com/macros/s/AKfycbyVcScnVPV9uRb1Jy5k6223khpRdKUFlYj4CqXfNREWwr0QtjaU_DtIVJQR511SvIsVfA/exec';
 
     window.onload = function() {
+      startLoaderRotation();
       buildFilterUI();
       fetch(APPS_SCRIPT_API_URL)
         .then(response => {
@@ -1130,6 +1168,7 @@
     }
 
     function initDashboard(data) {
+      if (loaderTimer) clearInterval(loaderTimer);
       rawData = data || [];
       // Preload bendera negeri
       rawData.forEach(d => getStateMeta(d.negeri));
