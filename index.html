@@ -559,6 +559,102 @@
       transition: opacity 0.35s ease;
     }
 
+    /* YoY Badge pada Kad KPI */
+    .kpi-yoy {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .yoy-up { background: #dcfce7; color: #15803d; }
+    .yoy-down { background: #fee2e2; color: #b91c1c; }
+    .yoy-flat { background: #f1f5f9; color: #475569; }
+
+    /* Bar Tindakan Eksport */
+    .export-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .btn-export {
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: opacity 0.2s;
+    }
+    .btn-export:hover { opacity: 0.9; }
+    .btn-csv { background: #0d9488; color: #ffffff; }
+    .btn-pdf { background: #0369a1; color: #ffffff; }
+
+    /* Matriks Heatmap Bermusim */
+    .heatmap-wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
+    .heatmap-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      text-align: center;
+    }
+    .heatmap-table th {
+      background: #f8fafc;
+      color: #334155;
+      padding: 7px 6px;
+      border: 1px solid #e2e8f0;
+      font-weight: 700;
+    }
+    .heatmap-table td {
+      padding: 7px 5px;
+      border: 1px solid #e2e8f0;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* Grid Top Movers */
+    .movers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .mover-box {
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px;
+      background: #ffffff;
+    }
+    .mover-box h4 {
+      margin: 0 0 10px 0;
+      font-size: 0.92rem;
+    }
+
+    .kpi-box .kpi-yoy {
+      margin-top: 4px;
+      font-size: 0.56rem;
+      padding: 2px 7px;
+      background: rgba(255, 255, 255, 0.92);
+    }
+    .heatmap-table th {
+      background: linear-gradient(90deg, #0369a1, #0d9488) !important;
+      color: #ffffff !important;
+      position: static !important;
+    }
+
+    @media print {
+      .filter-card, .export-toolbar, #loader { display: none !important; }
+      body { background: #ffffff !important; }
+    }
+
     .dash-stack {
       display: none;
       flex-direction: column;
@@ -873,6 +969,51 @@
             </table>
           </div>
         </div>
+      </div>
+
+      <!-- BARIS 9: CARTA 9 (SCATTER PLOT) & CARTA 10 (TOP MOVERS YOY) -->
+      <div class="chart-row-2col">
+        <!-- CARTA 9: Matriks Strategik Spesies (Pengeluaran vs Harga Purata) -->
+        <div class="chart-section accent-teal">
+          <div class="chart-top">
+            <h2 class="chart-title">9. Matriks Strategik Spesies: Pengeluaran vs Harga Purata</h2>
+            <div class="metric-badges">
+              <span class="badge" id="badgeC9Unit">Paksi-X: Pengeluaran (Tan Metrik)</span>
+              <span class="badge avg" id="badgeC9Price">Paksi-Y: Purata (RM / kg)</span>
+            </div>
+          </div>
+          <div class="canvas-container tall">
+            <canvas id="cScatterSpesies"></canvas>
+          </div>
+        </div>
+
+        <!-- CARTA 10: Analisis Top Movers Spesies (Lonjakan & Kejatuhan YoY) -->
+        <div class="chart-section accent-amber">
+          <div class="chart-top">
+            <h2 class="chart-title">10. Analisis Top Movers Spesies (Tahun-ke-Tahun / YoY)</h2>
+            <div class="metric-badges">
+              <span class="badge" id="badgeC10Unit">Perubahan Pengeluaran (Tan Metrik)</span>
+            </div>
+          </div>
+          <div id="topMoversContainer" class="movers-grid"></div>
+        </div>
+      </div>
+
+      <!-- BARIS 10: CARTA 11 (HEATMAP BERMUSIM BULAN x TAHUN) -->
+      <div class="chart-section accent-purple">
+        <div class="chart-top">
+          <h2 class="chart-title">11. Heatmap Pengeluaran Bermusim (Bulan × Tahun 2017–2026)</h2>
+          <div class="metric-badges">
+            <span class="badge purple" id="badgeC11Unit">Intensiti Pengeluaran Bulanan (Tan Metrik)</span>
+          </div>
+        </div>
+        <div id="heatmapContainer" class="heatmap-wrap"></div>
+      </div>
+
+      <!-- Bar Tindakan Eksport Laporan -->
+      <div class="export-toolbar">
+        <button type="button" class="btn-export btn-csv" onclick="exportFilteredCSV()">📥 Muat Turun Data Tertapis (CSV / Excel)</button>
+        <button type="button" class="btn-export btn-pdf" onclick="window.print()">🖨️ Cetak / Simpan Laporan PDF</button>
       </div>
 
     </div>
@@ -1342,11 +1483,16 @@
       document.getElementById('thSpHarga').innerText        = uCfg.priceUnit;
       document.getElementById('thDrPeng').innerText         = `Pengeluaran (${uCfg.unit})`;
       document.getElementById('thDrHarga').innerText        = uCfg.priceUnit;
+      document.getElementById('badgeC9Unit').innerText      = `Paksi-X: Pengeluaran (${uCfg.unit})`;
+      document.getElementById('badgeC9Price').innerText     = `Paksi-Y: Purata (${uCfg.priceUnit})`;
+      document.getElementById('badgeC10Unit').innerText     = `Perubahan Pengeluaran (${uCfg.unit})`;
+      document.getElementById('badgeC11Unit').innerText     = `Intensiti Pengeluaran Bulanan (${uCfg.unit})`;
 
       updateKPIs(filtered, uCfg);
       renderAllCharts(filtered, filteredNoYear, uCfg);
       updateSpeciesTable(filtered, uCfg);
       updateDaerahTable(filtered, uCfg);
+      renderAdvancedAnalytics(filtered, uCfg);
     }
 
     function updateKPIs(data, uCfg) {
@@ -1358,6 +1504,56 @@
       document.getElementById('kpiPengeluaran').innerText = fmtNum(totPeng, dec);
       document.getElementById('kpiNilai').innerText       = formatRMShort(totRM);
       document.getElementById('kpiHarga').innerText       = 'RM ' + fmtNum(avgPrice, 2);
+
+      updateKpiYoYBadges(totPeng, totRM, avgPrice, uCfg);
+    }
+
+    function updateKpiYoYBadges(currPeng, currRM, currAvg, uCfg) {
+      const yearsSelected = [...selectedFilters.tahun].sort();
+      const targetYear = yearsSelected.length > 0
+        ? yearsSelected[yearsSelected.length - 1]
+        : [...new Set(rawData.map(d => d.tahun).filter(Boolean))].sort().pop();
+      const prevYear = String(Number(targetYear) - 1);
+
+      const prevRows = rawData.filter(d =>
+        String(d.tahun) === prevYear &&
+        (selectedFilters.negeri.size === 0 || selectedFilters.negeri.has(d.negeri)) &&
+        (selectedFilters.daerah.size === 0 || selectedFilters.daerah.has(d.daerah)) &&
+        (selectedFilters.jenisAkua.size === 0 || selectedFilters.jenisAkua.has(d.jenisAkua)) &&
+        (selectedFilters.sTernakan.size === 0 || selectedFilters.sTernakan.has(d.sTernakan)) &&
+        (selectedFilters.kumpSpesies.size === 0 || selectedFilters.kumpSpesies.has(d.kumpSpesies)) &&
+        (selectedFilters.spesis.size === 0 || selectedFilters.spesis.has(d.spesis))
+      );
+
+      const prevPeng = prevRows.reduce((s, d) => s + d.pengeluaran, 0);
+      const prevRM   = prevRows.reduce((s, d) => s + d.nilaiBorong, 0);
+      const prevAvg  = prevPeng > 0 ? (prevRM / (prevPeng * uCfg.kgFactor)) : 0;
+
+      const kpiBoxes = document.querySelectorAll('.kpi-box');
+      if (kpiBoxes.length >= 3) {
+        setYoYBadgeOnBox(kpiBoxes[0], currPeng, prevPeng, prevYear);
+        setYoYBadgeOnBox(kpiBoxes[1], currRM, prevRM, prevYear);
+        setYoYBadgeOnBox(kpiBoxes[2], currAvg, prevAvg, prevYear);
+      }
+    }
+
+    function setYoYBadgeOnBox(boxEl, curr, prev, prevYear) {
+      const infoWrap = boxEl.querySelector('div:first-child');
+      let badge = infoWrap.querySelector('.kpi-yoy');
+      if (!badge) {
+        badge = document.createElement('div');
+        badge.className = 'kpi-yoy';
+        infoWrap.appendChild(badge);
+      }
+      if (!prev || prev === 0) {
+        badge.className = 'kpi-yoy yoy-flat';
+        badge.innerText = `Tiada rekod ${prevYear}`;
+        return;
+      }
+      const pct = ((curr - prev) / prev) * 100;
+      const sign = pct >= 0 ? '▲ +' : '▼ ';
+      badge.className = 'kpi-yoy ' + (pct >= 0 ? 'yoy-up' : 'yoy-down');
+      badge.innerText = `${sign}${pct.toFixed(1)}% vs ${prevYear}`;
     }
 
     function aggregateBy(data, keyFn) {
@@ -1827,6 +2023,195 @@
           </tr>`;
       }
       document.getElementById('tableBodyDaerah').innerHTML = html;
+    }
+
+    let lastFilteredDataset = [];
+
+    function renderAdvancedAnalytics(filtered, uCfg) {
+      lastFilteredDataset = filtered;
+      renderScatterSpesiesChart(filtered, uCfg);
+      renderTopMoversYoY(uCfg);
+      renderSeasonalHeatmap(uCfg);
+    }
+
+    // --- CARTA 9: Scatter Plot (Pengeluaran vs Harga Purata) ---
+    function renderScatterSpesiesChart(filtered, uCfg) {
+      const bySp = aggregateBy(filtered, d => d.spesis);
+      const isMobile = window.innerWidth < 1024;
+      const points = Object.entries(bySp)
+        .filter(([, v]) => v.peng > 0 && v.rm > 0)
+        .map(([name, v]) => ({
+          label: name,
+          x: Number(v.peng.toFixed(2)),
+          y: Number((v.rm / (v.peng * uCfg.kgFactor)).toFixed(2))
+        }))
+        .sort((a, b) => b.x - a.x)
+        .slice(0, 35);
+
+      buildChart('cScatterSpesies', {
+        type: 'scatter',
+        data: {
+          datasets: [{
+            label: 'Spesies (Top 35 Pengeluaran)',
+            data: points,
+            backgroundColor: 'rgba(13, 148, 136, 0.78)',
+            borderColor: '#0f766e',
+            borderWidth: 1,
+            pointRadius: isMobile ? 5 : 7,
+            pointHoverRadius: isMobile ? 7 : 9
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { top: 18, right: 16 } },
+          plugins: {
+            legend: { display: true, position: 'top' },
+            datalabels: {
+              display: (ctx) => ctx.dataIndex < 8,
+              align: 'top',
+              offset: 4,
+              color: '#0f172a',
+              font: { weight: 'bold', size: isMobile ? 8 : 9.5 },
+              formatter: (val) => val.label
+            },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  const p = ctx.raw;
+                  return ` ${p.label}: ${fmtNum(p.x, 2)} ${uCfg.unit} | RM ${fmtNum(p.y, 2)} (${uCfg.priceUnit})`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              title: { display: true, text: `Jumlah Pengeluaran (${uCfg.unit})`, font: { weight: 'bold', size: isMobile ? 9 : 11 } },
+              ticks: { callback: v => formatCompactLabel(v, false), font: { size: isMobile ? 8.5 : 10.5 } }
+            },
+            y: {
+              title: { display: true, text: `Purata Harga (${uCfg.priceUnit})`, font: { weight: 'bold', size: isMobile ? 9 : 11 } },
+              ticks: { callback: v => 'RM' + v, font: { size: isMobile ? 8.5 : 10.5 } }
+            }
+          }
+        }
+      });
+    }
+
+    // --- CARTA 10: Top Movers Spesies (Lonjakan & Kejatuhan YoY) ---
+    function renderTopMoversYoY(uCfg) {
+      const container = document.getElementById('topMoversContainer');
+      if (!container) return;
+
+      const yearsSelected = [...selectedFilters.tahun].sort();
+      const targetYear = yearsSelected.length > 0
+        ? yearsSelected[yearsSelected.length - 1]
+        : [...new Set(rawData.map(d => d.tahun).filter(Boolean))].sort().pop();
+      const prevYear = String(Number(targetYear) - 1);
+
+      const currMap = {}, prevMap = {};
+      rawData.forEach(d => {
+        if (selectedFilters.negeri.size > 0 && !selectedFilters.negeri.has(d.negeri)) return;
+        if (selectedFilters.daerah.size > 0 && !selectedFilters.daerah.has(d.daerah)) return;
+        if (selectedFilters.jenisAkua.size > 0 && !selectedFilters.jenisAkua.has(d.jenisAkua)) return;
+        if (selectedFilters.sTernakan.size > 0 && !selectedFilters.sTernakan.has(d.sTernakan)) return;
+        if (selectedFilters.kumpSpesies.size > 0 && !selectedFilters.kumpSpesies.has(d.kumpSpesies)) return;
+
+        if (String(d.tahun) === targetYear) currMap[d.spesis] = (currMap[d.spesis] || 0) + d.pengeluaran;
+        if (String(d.tahun) === prevYear)   prevMap[d.spesis] = (prevMap[d.spesis] || 0) + d.pengeluaran;
+      });
+
+      const diffs = [];
+      new Set([...Object.keys(currMap), ...Object.keys(prevMap)]).forEach(sp => {
+        const c = currMap[sp] || 0;
+        const p = prevMap[sp] || 0;
+        if (c > 0 || p > 0) diffs.push({ sp, diff: c - p });
+      });
+
+      const dec = (uCfg.unit === 'Ekor' || uCfg.unit === 'Ikat') ? 0 : 1;
+      const gainers = [...diffs].filter(x => x.diff > 0).sort((a, b) => b.diff - a.diff).slice(0, 5);
+      const losers  = [...diffs].filter(x => x.diff < 0).sort((a, b) => a.diff - b.diff).slice(0, 5);
+
+      const buildBox = (title, list, isUp) => {
+        let rows = list.map(i => `
+          <tr>
+            <td><strong>${i.sp}</strong></td>
+            <td class="num" style="font-weight:800; color:${isUp ? '#15803d' : '#b91c1c'};">
+              ${isUp ? '+' : ''}${fmtNum(i.diff, dec)}
+            </td>
+          </tr>`).join('');
+        if (!rows) rows = '<tr><td colspan="2" style="color:#64748b;">Tiada rekod perbandingan</td></tr>';
+        return `<div class="mover-box"><h4>${title} (${targetYear} vs ${prevYear})</h4><table><tbody>${rows}</tbody></table></div>`;
+      };
+
+      container.innerHTML =
+        buildBox('📈 Top 5 Lonjakan Pengeluaran', gainers, true) +
+        buildBox('📉 Top 5 Penurunan Pengeluaran', losers, false);
+    }
+
+    // --- CARTA 11: Heatmap Pengeluaran Bermusim (Bulan x Tahun) ---
+    function renderSeasonalHeatmap(uCfg) {
+      const container = document.getElementById('heatmapContainer');
+      if (!container) return;
+
+      const years = [...new Set(rawData.map(d => String(d.tahun)).filter(Boolean))].sort();
+      const matrix = {};
+      let maxVal = 0;
+
+      rawData.forEach(d => {
+        if (selectedFilters.negeri.size > 0 && !selectedFilters.negeri.has(d.negeri)) return;
+        if (selectedFilters.daerah.size > 0 && !selectedFilters.daerah.has(d.daerah)) return;
+        if (selectedFilters.jenisAkua.size > 0 && !selectedFilters.jenisAkua.has(d.jenisAkua)) return;
+        if (selectedFilters.sTernakan.size > 0 && !selectedFilters.sTernakan.has(d.sTernakan)) return;
+        if (selectedFilters.kumpSpesies.size > 0 && !selectedFilters.kumpSpesies.has(d.kumpSpesies)) return;
+        if (selectedFilters.spesis.size > 0 && !selectedFilters.spesis.has(d.spesis)) return;
+
+        const key = `${d.tahun}_${d.month}`;
+        matrix[key] = (matrix[key] || 0) + d.pengeluaran;
+        if (matrix[key] > maxVal) maxVal = matrix[key];
+      });
+
+      let html = '<table class="heatmap-table"><thead><tr><th>Tahun</th>';
+      for (let m = 1; m <= 12; m++) html += `<th>${BULAN[m]}</th>`;
+      html += '</tr></thead><tbody>';
+
+      years.forEach(y => {
+        html += `<tr><th>${y}</th>`;
+        for (let m = 1; m <= 12; m++) {
+          const val = matrix[`${y}_${m}`] || 0;
+          const intensity = maxVal > 0 ? (val / maxVal) : 0;
+          const bg = val === 0 ? '#f8fafc' : `rgba(2, 132, 199, ${(0.12 + intensity * 0.78).toFixed(2)})`;
+          const color = intensity > 0.52 ? '#ffffff' : '#0f172a';
+          html += `<td style="background:${bg}; color:${color};" title="${y} ${BULAN[m]}: ${fmtNum(val, 2)} ${uCfg.unit}">${val > 0 ? formatCompactLabel(val, false) : '-'}</td>`;
+        }
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    }
+
+    // --- EKSPORT CSV / EXCEL ---
+    function exportFilteredCSV() {
+      if (!lastFilteredDataset || lastFilteredDataset.length === 0) {
+        alert('Tiada data untuk dieksport.');
+        return;
+      }
+      const headers = ['Tahun', 'Bulan', 'Negeri', 'Daerah', 'Jenis Akua', 'Sistem Ternakan', 'Kumpulan Spesies', 'Spesies', 'Pengeluaran', 'Nilai Borong (RM)'];
+      const lines = [headers.join(',')];
+      lastFilteredDataset.forEach(d => {
+        const row = [
+          d.tahun, BULAN[d.month] || d.month, d.negeri, d.daerah, d.jenisAkua,
+          d.sTernakan, d.kumpSpesies, d.spesis, d.pengeluaran, d.nilaiBorong
+        ].map(v => `"${String(v ?? '').replace(/"/g, '""')}"`);
+        lines.push(row.join(','));
+      });
+      const blob = new Blob(['\uFEFF' + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Statistik_Akuakultur_DOF_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
     }
   </script>
 </body>
