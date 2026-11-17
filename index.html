@@ -1142,7 +1142,8 @@
       FILTER_CONFIG.forEach(cfg => {
         const key = cfg.key;
         const subset = rawData.filter(d => {
-          if (key !== 'tahun' && selectedFilters.tahun.size > 0 && !selectedFilters.tahun.has(d.tahun)) return false;
+          if (key === 'tahun') return true; // Sentiasa papar semua tahun dalam data tanpa disekat penapis lain
+          if (selectedFilters.tahun.size > 0 && !selectedFilters.tahun.has(d.tahun)) return false;
           if (key !== 'negeri' && selectedFilters.negeri.size > 0 && !selectedFilters.negeri.has(d.negeri)) return false;
           if (key === 'daerah' && selectedFilters.negeri.size > 0 && !selectedFilters.negeri.has(d.negeri)) return false;
           if (key !== 'jenisAkua' && selectedFilters.jenisAkua.size > 0 && !selectedFilters.jenisAkua.has(d.jenisAkua)) return false;
