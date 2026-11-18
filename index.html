@@ -611,7 +611,7 @@
     }
     @media (min-width: 1024px) {
       .submod-nav {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(5, minmax(0, 1fr));
         padding: 8px;
         gap: 8px;
       }
@@ -965,7 +965,10 @@
           🐟 3. Analisis Spesies &amp; Sistem
         </button>
         <button type="button" class="submod-btn" id="tabBtn-tables" onclick="switchSubmodule('tables')">
-          📋 4. Jadual Spesies dan Daerah
+          📋 4. Jadual &amp; Cetak Laporan
+        </button>
+        <button type="button" class="submod-btn" id="tabBtn-bantuan" onclick="switchSubmodule('bantuan')">
+          🎁 5. Bantuan Akua (2021–2025)
         </button>
       </div>
 
@@ -1222,6 +1225,196 @@
                   </tr>
                 </thead>
                 <tbody id="tableBodyDaerah"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================================= -->
+      <!-- TAB 5: BANTUAN SPeKS & AKUAKULTUR (2021–2025)             -->
+      <!-- ========================================================= -->
+      <div id="pane-bantuan" class="submod-pane">
+        <!-- Penapis Khusus Bantuan (Keputusan J/K Induk, Kategori Pemohon, Jenis Bantuan, Program) -->
+        <div class="inchart-controls">
+          <div class="inchart-group">
+            <span class="inchart-label">Keputusan J/K:</span>
+            <select id="bntFilterKeputusan" class="inchart-select" onchange="renderBantuanTab()">
+              <option value="ALL">Semua Keputusan</option>
+              <option value="LULUS" selected>Lulus Sahaja</option>
+              <option value="TIDAK LULUS">Tidak Lulus</option>
+              <option value="KIV">KIV / Dalam Proses</option>
+            </select>
+          </div>
+          <div class="inchart-group">
+            <span class="inchart-label">Kategori Pemohon:</span>
+            <select id="bntFilterKatPemohon" class="inchart-select" onchange="renderBantuanTab()">
+              <option value="ALL">Semua Kategori</option>
+            </select>
+          </div>
+          <div class="inchart-group">
+            <span class="inchart-label">Jenis Bantuan:</span>
+            <select id="bntFilterJenisBantuan" class="inchart-select" onchange="renderBantuanTab()">
+              <option value="ALL">Semua Jenis Bantuan</option>
+            </select>
+          </div>
+          <span class="badge">Selari dengan penapis Tahun, Negeri &amp; Daerah di atas</span>
+        </div>
+
+        <div id="bantuanLoader" style="display:none; text-align:center; padding:24px; background:#fff; border-radius:12px; font-weight:700; color:#0369a1;">
+          Sedang memuatkan rekod Bantuan Akuakultur 2021–2025...
+        </div>
+
+        <!-- 3 Kad KPI Bantuan -->
+        <div class="kpi-grid">
+          <div class="kpi-box blue">
+            <div>
+              <div class="kpi-label">Bilangan Permohonan / Penerima</div>
+              <div class="kpi-num" id="kpiBntBil">0</div>
+              <div class="kpi-unit" id="kpiBntLulusSub">0 Lulus</div>
+            </div>
+            <div class="kpi-icon-clean">📑</div>
+          </div>
+          <div class="kpi-box teal">
+            <div>
+              <div class="kpi-label">Jumlah Nilai Bantuan / Kelulusan</div>
+              <div class="kpi-num" id="kpiBntNilai">RM 0</div>
+              <div class="kpi-unit">Peruntukan Diluluskan (RM)</div>
+            </div>
+            <div class="kpi-icon-clean">💵</div>
+          </div>
+          <div class="kpi-box amber">
+            <div>
+              <div class="kpi-label">Purata Nilai / Penerapan IR 4.0</div>
+              <div class="kpi-num" id="kpiBntPurata">RM 0</div>
+              <div class="kpi-unit" id="kpiBntIR40">IR 4.0: 0%</div>
+            </div>
+            <div class="kpi-icon-clean">🚀</div>
+          </div>
+        </div>
+
+        <!-- Baris Carta 1: Trend Tahunan (2021–2025) & Kedudukan Negeri -->
+        <div class="chart-row-2col">
+          <div class="chart-section accent-purple">
+            <div class="chart-top">
+              <h2 class="chart-title">B1. Trend Tahunan Bantuan (2021–2025)</h2>
+              <div class="metric-badges">
+                <span class="badge purple">Bar: Bilangan Penerima</span>
+                <span class="badge rm">Garis: Nilai Bantuan (RM)</span>
+              </div>
+            </div>
+            <div class="canvas-container tall">
+              <canvas id="cBntTahun"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-section accent-emerald">
+            <div class="chart-top">
+              <h2 class="chart-title">B2. Kedudukan Negeri: Bilangan vs Nilai Bantuan (RM)</h2>
+              <div class="metric-badges">
+                <span class="badge">Bar: Bilangan Penerima</span>
+                <span class="badge rm">Garis: Nilai Bantuan (RM)</span>
+              </div>
+            </div>
+            <div class="canvas-container tall">
+              <canvas id="cBntNegeri"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Baris Carta 2: Jenis Bantuan & Jenis Akuakultur -->
+        <div class="chart-row-2col">
+          <div class="chart-section accent-indigo">
+            <div class="chart-top">
+              <h2 class="chart-title">B3. Pecahan Mengikut Jenis Bantuan</h2>
+              <div class="metric-badges">
+                <span class="badge purple">Bar: Bilangan</span>
+                <span class="badge rm">Garis: Nilai Bantuan (RM)</span>
+              </div>
+            </div>
+            <div class="canvas-container tall">
+              <canvas id="cBntJenis"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-section accent-pink">
+            <div class="chart-top">
+              <h2 class="chart-title">B4. Pecahan Mengikut Jenis Akuakultur (AT, AM, IH, RP, HATCH)</h2>
+              <div class="metric-badges">
+                <span class="badge">Bar: Bilangan</span>
+                <span class="badge rm">Garis: Nilai Bantuan (RM)</span>
+              </div>
+            </div>
+            <div class="canvas-container tall">
+              <canvas id="cBntAkua"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Baris Carta 3: Kategori Pengusaha & Demografi (Bumiputera / Jantina / SKL) -->
+        <div class="chart-row-2col">
+          <div class="chart-section accent-teal">
+            <div class="chart-top">
+              <h2 class="chart-title">B5. Kategori Pengusaha &amp; Pemilikan Tanah</h2>
+              <div class="metric-badges">
+                <span class="badge">Bar: Bilangan</span>
+                <span class="badge rm">Garis: Nilai Bantuan (RM)</span>
+              </div>
+            </div>
+            <div class="canvas-container tall">
+              <canvas id="cBntPengusaha"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-section accent-amber">
+            <div class="chart-top">
+              <h2 class="chart-title">B6. Status Lesen SKL, e-SMPP &amp; Teknologi IR 4.0</h2>
+              <div class="metric-badges">
+                <span class="badge avg">Bilangan Rekod Mengikut Status Pematuhan</span>
+              </div>
+            </div>
+            <div class="canvas-container tall">
+              <canvas id="cBntStatus"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Jadual Ringkasan Program & Parlimen/Daerah -->
+        <div class="dual-table-grid">
+          <div class="chart-section accent-teal">
+            <div class="chart-top">
+              <h2 class="chart-title">B7A. Ringkasan Mengikut Program &amp; Projek</h2>
+            </div>
+            <div class="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Program</th>
+                    <th>Projek</th>
+                    <th class="num">Bil. Rekod</th>
+                    <th class="num">Nilai Bantuan (RM)</th>
+                  </tr>
+                </thead>
+                <tbody id="tblBntProgram"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="chart-section accent-indigo">
+            <div class="chart-top">
+              <h2 class="chart-title">B7B. Ringkasan Mengikut Parlimen &amp; Daerah</h2>
+            </div>
+            <div class="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Parlimen</th>
+                    <th>Daerah / Negeri</th>
+                    <th class="num">Bil. Rekod</th>
+                    <th class="num">Nilai Bantuan (RM)</th>
+                  </tr>
+                </thead>
+                <tbody id="tblBntParlimen"></tbody>
               </table>
             </div>
           </div>
@@ -1712,16 +1905,16 @@
 
       updateKPIs(filtered, uCfg);
 
-      dirtySubmodules = { overview: true, tenyear: true, species: true, tables: true };
+      dirtySubmodules = { overview: true, tenyear: true, species: true, tables: true, bantuan: true };
       renderActiveSubmodule();
     }
 
     let activeSubmodule = 'overview';
-    let dirtySubmodules = { overview: true, tenyear: true, species: true, tables: true };
+    let dirtySubmodules = { overview: true, tenyear: true, species: true, tables: true, bantuan: true };
 
     function switchSubmodule(tabName) {
       activeSubmodule = tabName;
-      ['overview', 'tenyear', 'species', 'tables'].forEach(t => {
+      ['overview', 'tenyear', 'species', 'tables', 'bantuan'].forEach(t => {
         document.getElementById(`tabBtn-${t}`).classList.toggle('active', t === tabName);
         document.getElementById(`pane-${t}`).classList.toggle('active', t === tabName);
       });
@@ -1743,6 +1936,8 @@
       } else if (activeSubmodule === 'tables') {
         updateSpeciesTable(filtered, uCfg);
         updateDaerahTable(filtered, uCfg);
+      } else if (activeSubmodule === 'bantuan') {
+        loadAndRenderBantuan();
       }
       dirtySubmodules[activeSubmodule] = false;
     }
@@ -2532,6 +2727,224 @@
       container.innerHTML =
         buildBox('📈 Top 5 Lonjakan Pengeluaran', gainers, true) +
         buildBox('📉 Top 5 Penurunan Pengeluaran', losers, false);
+    }
+
+    // =========================================================
+    // SUBMODUL 5: DATA BANTUAN AKUAKULTUR (2021–2025)
+    // =========================================================
+    let bantuanRawData = null;
+    let isBantuanLoading = false;
+
+    function loadAndRenderBantuan() {
+      if (bantuanRawData !== null) {
+        renderBantuanTab();
+        return;
+      }
+      if (isBantuanLoading) return;
+      isBantuanLoading = true;
+      document.getElementById('bantuanLoader').style.display = 'block';
+
+      fetch(APPS_SCRIPT_API_URL + '?type=bantuan')
+        .then(res => res.json())
+        .then(arr => {
+          bantuanRawData = (arr || []).map(r => ({
+            tahun:        String(r[0] || '').trim(),
+            mesyuarat:    r[1],
+            katPemohon:   r[2],
+            kodPemohon:   r[3],
+            umur:         Number(r[4] || 0),
+            jantina:      r[5],
+            bumiputera:   r[6],
+            bangsa:       r[7],
+            ahliPemilik:  r[8],
+            esmp:         r[9],
+            noPremis:     r[10],
+            noSkl:        r[11],
+            katPengusaha: r[12],
+            statusTanah:  r[13],
+            negeri:       String(r[14] || '').toUpperCase().trim(),
+            daerah:       String(r[15] || '').toUpperCase().trim(),
+            parlimen:     r[16],
+            projek:       r[17],
+            program:      r[18],
+            peruntukan:   r[19],
+            jenisAkua:    r[20],
+            pic:          r[21],
+            jenisBantuan: r[22],
+            keputusan:    String(r[23] || '').toUpperCase().trim(),
+            nilaiLulus:   Number(r[24] || 0),
+            bantuanTerima:r[25],
+            pernahSpeks:  r[26],
+            nilaiSpeks:   Number(r[27] || 0),
+            bilSpeksLama: r[28],
+            pernahAgensi: r[29],
+            nilaiAgensi:  Number(r[30] || 0),
+            ir40:         String(r[31] || '').trim()
+          }));
+
+          populateBantuanDropdowns();
+          document.getElementById('bantuanLoader').style.display = 'none';
+          isBantuanLoading = false;
+          renderBantuanTab();
+        })
+        .catch(err => {
+          isBantuanLoading = false;
+          document.getElementById('bantuanLoader').innerText = 'Ralat memuatkan data bantuan: ' + err.message;
+        });
+    }
+
+    function populateBantuanDropdowns() {
+      const katSet = [...new Set(bantuanRawData.map(d => d.katPemohon).filter(x => x && x !== '-'))].sort();
+      const jbSet  = [...new Set(bantuanRawData.map(d => d.jenisBantuan).filter(x => x && x !== '-'))].sort();
+
+      const selKat = document.getElementById('bntFilterKatPemohon');
+      selKat.innerHTML = '<option value="ALL">Semua Kategori</option>' +
+        katSet.map(v => `<option value="${v}">${v}</option>`).join('');
+
+      const selJb = document.getElementById('bntFilterJenisBantuan');
+      selJb.innerHTML = '<option value="ALL">Semua Jenis Bantuan</option>' +
+        jbSet.map(v => `<option value="${v}">${v}</option>`).join('');
+    }
+
+    function renderBantuanTab() {
+      if (!bantuanRawData) return;
+
+      const fKeputusan = document.getElementById('bntFilterKeputusan').value;
+      const fKat       = document.getElementById('bntFilterKatPemohon').value;
+      const fJb        = document.getElementById('bntFilterJenisBantuan').value;
+
+      // Penapisan terikat dengan Tahun, Negeri & Daerah di panel utama atas + penapis khusus bantuan
+      const baseFilteredNoYear = bantuanRawData.filter(d => {
+        if (selectedFilters.negeri.size > 0 && !selectedFilters.negeri.has(d.negeri)) return false;
+        if (selectedFilters.daerah.size > 0 && !selectedFilters.daerah.has(d.daerah)) return false;
+        if (fKat !== 'ALL' && d.katPemohon !== fKat) return false;
+        if (fJb !== 'ALL' && d.jenisBantuan !== fJb) return false;
+
+        if (fKeputusan === 'LULUS' && (!d.keputusan.includes('LULUS') || d.keputusan.includes('TIDAK'))) return false;
+        if (fKeputusan === 'TIDAK LULUS' && !d.keputusan.includes('TIDAK')) return false;
+        if (fKeputusan === 'KIV' && (d.keputusan.includes('LULUS') || d.keputusan.includes('TIDAK'))) return false;
+        return true;
+      });
+
+      const filtered = baseFilteredNoYear.filter(d => {
+        if (selectedFilters.tahun.size > 0 && !selectedFilters.tahun.has(d.tahun)) return false;
+        return true;
+      });
+
+      // 1. Kemas kini Kad KPI Bantuan
+      const bil = filtered.length;
+      const totNilai = filtered.reduce((s, d) => s + d.nilaiLulus, 0);
+      const purata = bil > 0 ? (totNilai / bil) : 0;
+      const bilIR40 = filtered.filter(d => d.ir40 && d.ir40 !== '-' && d.ir40.toUpperCase() !== 'TIDAK').length;
+      const pctIR40 = bil > 0 ? ((bilIR40 / bil) * 100).toFixed(1) : '0.0';
+
+      document.getElementById('kpiBntBil').innerText = fmtNum(bil, 0);
+      document.getElementById('kpiBntLulusSub').innerText = `Status: ${fKeputusan}`;
+      document.getElementById('kpiBntNilai').innerText = formatRMShort(totNilai);
+      document.getElementById('kpiBntPurata').innerText = formatRMShort(purata);
+      document.getElementById('kpiBntIR40').innerText = `IR 4.0: ${pctIR40}% (${bilIR40} projek)`;
+
+      const unitBnt = { unit: 'Permohonan', priceUnit: 'RM', kgFactor: 1, isMixed: false };
+
+      // Helper agregasi Bantuan
+      const aggBnt = (arr, fn) => {
+        const m = {};
+        arr.forEach(d => {
+          const k = fn(d) || 'Lain-lain';
+          if (!m[k]) m[k] = { peng: 0, rm: 0 };
+          m[k].peng += 1;
+          m[k].rm   += d.nilaiLulus;
+        });
+        return m;
+      };
+
+      // B1. Trend Tahunan (2021–2025) - Bebas penapis Tahun
+      const byYr = aggBnt(baseFilteredNoYear, d => d.tahun);
+      const yrs = Object.keys(byYr).filter(x => x && x !== '-').sort();
+      buildComboChart('cBntTahun', yrs, yrs.map(y => byYr[y].peng), yrs.map(y => byYr[y].rm), unitBnt, '#7c3aed', false);
+
+      // B2. Kedudukan Negeri (dengan bendera negeri)
+      const byNeg = Object.entries(aggBnt(filtered, d => d.negeri)).sort((a, b) => b[1].rm - a[1].rm);
+      buildComboChart('cBntNegeri', byNeg.map(x => x[0]), byNeg.map(x => x[1].peng), byNeg.map(x => x[1].rm), unitBnt, '#0d9488', true);
+
+      // B3. Jenis Bantuan
+      const byJb = Object.entries(aggBnt(filtered, d => d.jenisBantuan)).sort((a, b) => b[1].rm - a[1].rm);
+      buildComboChart('cBntJenis', byJb.map(x => x[0]), byJb.map(x => x[1].peng), byJb.map(x => x[1].rm), unitBnt, '#4f46e5', false);
+
+      // B4. Jenis Akuakultur (AT, AM, IH, RP, HATCH)
+      const byAk = Object.entries(aggBnt(filtered, d => d.jenisAkua)).sort((a, b) => b[1].rm - a[1].rm);
+      buildComboChart('cBntAkua', byAk.map(x => x[0]), byAk.map(x => x[1].peng), byAk.map(x => x[1].rm), unitBnt, '#0284c7', false);
+
+      // B5. Kategori Pengusaha
+      const byKp = Object.entries(aggBnt(filtered, d => d.katPengusaha)).sort((a, b) => b[1].rm - a[1].rm);
+      buildComboChart('cBntPengusaha', byKp.map(x => x[0]), byKp.map(x => x[1].peng), byKp.map(x => x[1].rm), unitBnt, '#059669', false);
+
+      // B6. Bar Ringkas Pematuhan SKL, e-SMPP & IR 4.0
+      const sklCount  = filtered.filter(d => d.noSkl === 'Berlesen (SKL)').length;
+      const esmpCount = filtered.filter(d => d.esmp && d.esmp !== '-' && !d.esmp.toUpperCase().includes('TIDAK')).length;
+      const bumCount  = filtered.filter(d => d.bumiputera && d.bumiputera.toUpperCase().includes('BUMI') && !d.bumiputera.toUpperCase().includes('BUKAN')).length;
+
+      buildChart('cBntStatus', {
+        type: 'bar',
+        data: {
+          labels: ['Berlesen SKL', 'Berdaftar e-SMPP', 'Bumiputera', 'Teknologi IR 4.0'],
+          datasets: [{
+            label: 'Bilangan Rekod',
+            data: [sklCount, esmpCount, bumCount, bilIR40],
+            backgroundColor: ['#0284c7', '#0d9488', '#f59e0b', '#7c3aed'],
+            borderRadius: 6,
+            datalabels: {
+              display: true,
+              anchor: 'end',
+              align: 'top',
+              color: '#0f172a',
+              font: { weight: 'bold', size: 10 },
+              formatter: v => fmtNum(v, 0)
+            }
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { top: 24 } },
+          plugins: { legend: { display: false } },
+          scales: { y: { grace: '15%' } }
+        }
+      });
+
+      // B7A. Jadual Program & Projek
+      const progMap = {};
+      filtered.forEach(d => {
+        const k = `${d.program}|||${d.projek}`;
+        if (!progMap[k]) progMap[k] = { prog: d.program, proj: d.projek, bil: 0, rm: 0 };
+        progMap[k].bil += 1;
+        progMap[k].rm  += d.nilaiLulus;
+      });
+      const progRows = Object.values(progMap).sort((a, b) => b.rm - a.rm);
+      document.getElementById('tblBntProgram').innerHTML = progRows.map(r => `
+        <tr>
+          <td><strong>${r.prog}</strong></td>
+          <td>${r.proj}</td>
+          <td class="num">${fmtNum(r.bil, 0)}</td>
+          <td class="num">${formatRMShort(r.rm)}</td>
+        </tr>`).join('');
+
+      // B7B. Jadual Parlimen & Daerah
+      const parlMap = {};
+      filtered.forEach(d => {
+        const k = `${d.parlimen}|||${d.daerah} (${d.negeri})`;
+        if (!parlMap[k]) parlMap[k] = { parl: d.parlimen, loc: `${d.daerah} (${d.negeri})`, bil: 0, rm: 0 };
+        parlMap[k].bil += 1;
+        parlMap[k].rm  += d.nilaiLulus;
+      });
+      const parlRows = Object.values(parlMap).sort((a, b) => b.rm - a.rm).slice(0, 50);
+      document.getElementById('tblBntParlimen').innerHTML = parlRows.map(r => `
+        <tr>
+          <td><strong>${r.parl}</strong></td>
+          <td>${r.loc}</td>
+          <td class="num">${fmtNum(r.bil, 0)}</td>
+          <td class="num">${formatRMShort(r.rm)}</td>
+        </tr>`).join('');
     }
     </script>
 </body>
