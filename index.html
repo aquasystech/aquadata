@@ -1405,10 +1405,21 @@
 
     const APPS_SCRIPT_API_URL = 'https://script.google.com/macros/s/AKfycbyVcScnVPV9uRb1Jy5k6223khpRdKUFlYj4CqXfNREWwr0QtjaU_DtIVJQR511SvIsVfA/exec';
 
+    function getVisitorTrackingParams() {
+      let vid = localStorage.getItem('dof_aqua_visitor_id');
+      if (!vid) {
+        vid = 'v_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+        localStorage.setItem('dof_aqua_visitor_id', vid);
+      }
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+      const dev = isMobile ? 'Telefon Pintar' : 'Komputer';
+      return `?vid=${encodeURIComponent(vid)}&dev=${encodeURIComponent(dev)}`;
+    }
+
     window.onload = function() {
       startLoaderRotation();
       buildFilterUI();
-      fetch(APPS_SCRIPT_API_URL)
+      fetch(APPS_SCRIPT_API_URL + getVisitorTrackingParams())
         .then(response => {
           if (!response.ok) throw new Error('Ralat rangkaian: ' + response.status);
           return response.json();
