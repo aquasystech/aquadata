@@ -1235,6 +1235,29 @@
       <!-- TAB 5: BANTUAN SPeKS & AKUAKULTUR (2021–2025)             -->
       <!-- ========================================================= -->
       <div id="pane-bantuan" class="submod-pane">
+        <!-- Skrin Kunci Kata Laluan Tab 5 -->
+        <div id="bantuanLockBox" class="chart-section accent-purple" style="text-align:center; padding:32px 16px;">
+          <div style="font-size:2.4rem; margin-bottom:8px;">🔒</div>
+          <h2 class="chart-title" style="font-size:1.05rem; margin-bottom:6px;">Akses Terhad — Modul Bantuan Akuakultur</h2>
+          <p style="font-size:0.82rem; color:#475569; max-width:420px; margin:0 auto 14px auto;">
+            Sila masukkan kata laluan pegawai yang dibenarkan untuk memaparkan analisis peruntukan dan penerima bantuan.
+          </p>
+          <div style="display:flex; justify-content:center; gap:8px; flex-wrap:wrap; max-width:360px; margin:0 auto;">
+            <input type="password" id="bantuanPwdInput" placeholder="Masukkan kata laluan..."
+              onkeydown="if(event.key==='Enter') unlockBantuanTab()"
+              style="flex:1; min-width:180px; padding:9px 12px; border:1.5px solid #0284c7; border-radius:8px; font-size:0.88rem;">
+            <button type="button" onclick="unlockBantuanTab()"
+              style="background:#0284c7; color:#ffffff; border:none; padding:9px 16px; border-radius:8px; font-weight:700; font-size:0.86rem; cursor:pointer;">
+              Buka Akses
+            </button>
+          </div>
+          <div id="bantuanPwdError" style="display:none; color:#be123c; font-size:0.8rem; font-weight:700; margin-top:10px;">
+            Kata laluan tidak sah. Sila cuba lagi.
+          </div>
+        </div>
+
+        <!-- Kandungan Sebenar Tab 5 (Tersembunyi sehingga kata laluan disahkan) -->
+        <div id="bantuanUnlockedContent" style="display:none; flex-direction:column; gap:10px;">
         <!-- Penapis Khusus Bantuan (Keputusan J/K Induk, Kategori Pemohon, Jenis Bantuan, Program) -->
         <div class="inchart-controls">
           <div class="inchart-group">
@@ -1419,6 +1442,7 @@
             </div>
           </div>
         </div>
+        </div><!-- Penutup #bantuanUnlockedContent -->
       </div>
 
     </div>
@@ -2734,19 +2758,52 @@
     // =========================================================
     let bantuanRawData = null;
     let isBantuanLoading = false;
+    let savedBantuanPwd = sessionStorage.getItem('dof_bantuan_pwd') || '';
+
+    function unlockBantuanTab() {
+      const inputEl = document.getElementById('bantuanPwdInput');
+      const pwd = String(inputEl.value || '').trim();
+      if (!pwd) return;
+      savedBantuanPwd = pwd;
+      document.getElementById('bantuanPwdError').style.display = 'none';
+      loadAndRenderBantuan();
+    }
 
     function loadAndRenderBantuan() {
       if (bantuanRawData !== null) {
+        document.getElementById('bantuanLockBox').style.display = 'none';
+        document.getElementById('bantuanUnlockedContent').style.display = 'flex';
         renderBantuanTab();
         return;
       }
+
+      if (!savedBantuanPwd) {
+        document.getElementById('bantuanLockBox').style.display = 'block';
+        document.getElementById('bantuanUnlockedContent').style.display = 'none';
+        return;
+      }
+
       if (isBantuanLoading) return;
       isBantuanLoading = true;
+      document.getElementById('bantuanLockBox').style.display = 'none';
+      document.getElementById('bantuanUnlockedContent').style.display = 'flex';
       document.getElementById('bantuanLoader').style.display = 'block';
 
-      fetch(APPS_SCRIPT_API_URL + '?type=bantuan')
+      fetch(APPS_SCRIPT_API_URL + '?type=bantuan&pwd=' + encodeURIComponent(savedBantuanPwd))
         .then(res => res.json())
         .then(arr => {
+          if (arr && arr.error === 'KATA_LALUAN_SALAH') {
+            isBantuanLoading = false;
+            savedBantuanPwd = '';
+            sessionStorage.removeItem('dof_bantuan_pwd');
+            document.getElementById('bantuanLoader').style.display = 'none';
+            document.getElementById('bantuanUnlockedContent').style.display = 'none';
+            document.getElementById('bantuanLockBox').style.display = 'block';
+            document.getElementById('bantuanPwdError').style.display = 'block';
+            return;
+          }
+
+          sessionStorage.setItem('dof_bantuan_pwd', savedBantuanPwd);
           bantuanRawData = (arr || []).map(r => ({
             tahun:        String(r[0] || '').trim(),
             mesyuarat:    r[1],
