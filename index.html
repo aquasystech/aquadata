@@ -423,6 +423,21 @@
       background: #f3e8ff;
       color: #5b21b6;
     }
+    .badge.clickable-legend {
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.18s ease;
+      border: 1px solid rgba(15, 23, 42, 0.12);
+    }
+    .badge.clickable-legend:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.12);
+    }
+    .badge.clickable-legend.hidden-series {
+      opacity: 0.42;
+      text-decoration: line-through;
+      filter: grayscale(70%);
+    }
 
     .canvas-container {
       position: relative;
@@ -1369,8 +1384,8 @@
             <div class="chart-top">
               <h2 class="chart-title">B1. Trend Tahunan Bantuan (2021–2025)</h2>
               <div class="metric-badges">
-                <span class="badge purple">Bar: Bilangan Penerima</span>
-                <span class="badge rm">Garis: Nilai Bantuan (RM)</span>
+                <span class="badge purple clickable-legend" onclick="toggleComboDataset('cBntTahun', 1, this)">Bar: Bilangan Penerima</span>
+                <span class="badge rm clickable-legend" onclick="toggleComboDataset('cBntTahun', 0, this)">Garis: Nilai Bantuan (RM)</span>
               </div>
             </div>
             <div class="canvas-container tall">
@@ -1382,8 +1397,8 @@
             <div class="chart-top">
               <h2 class="chart-title">B2. Kedudukan Negeri: Bilangan vs Nilai Bantuan (RM)</h2>
               <div class="metric-badges">
-                <span class="badge">Bar: Bilangan Penerima</span>
-                <span class="badge rm">Garis: Nilai Bantuan (RM)</span>
+                <span class="badge clickable-legend" onclick="toggleComboDataset('cBntNegeri', 1, this)">Bar: Bilangan Penerima</span>
+                <span class="badge rm clickable-legend" onclick="toggleComboDataset('cBntNegeri', 0, this)">Garis: Nilai Bantuan (RM)</span>
               </div>
             </div>
             <div class="canvas-container tall">
@@ -1398,8 +1413,8 @@
             <div class="chart-top">
               <h2 class="chart-title">B3. Pecahan Mengikut Jenis Bantuan</h2>
               <div class="metric-badges">
-                <span class="badge purple">Bar: Bilangan</span>
-                <span class="badge rm">Garis: Nilai Bantuan (RM)</span>
+                <span class="badge purple clickable-legend" onclick="toggleComboDataset('cBntJenis', 1, this)">Bar: Bilangan</span>
+                <span class="badge rm clickable-legend" onclick="toggleComboDataset('cBntJenis', 0, this)">Garis: Nilai Bantuan (RM)</span>
               </div>
             </div>
             <div class="canvas-container tall">
@@ -1411,8 +1426,8 @@
             <div class="chart-top">
               <h2 class="chart-title">B4. Pecahan Mengikut Jenis Akuakultur (AT, AM, IH, RP, HATCH)</h2>
               <div class="metric-badges">
-                <span class="badge">Bar: Bilangan</span>
-                <span class="badge rm">Garis: Nilai Bantuan (RM)</span>
+                <span class="badge clickable-legend" onclick="toggleComboDataset('cBntAkua', 1, this)">Bar: Bilangan</span>
+                <span class="badge rm clickable-legend" onclick="toggleComboDataset('cBntAkua', 0, this)">Garis: Nilai Bantuan (RM)</span>
               </div>
             </div>
             <div class="canvas-container tall">
@@ -1427,8 +1442,8 @@
             <div class="chart-top">
               <h2 class="chart-title">B5. Kategori Pengusaha &amp; Pemilikan Tanah</h2>
               <div class="metric-badges">
-                <span class="badge">Bar: Bilangan</span>
-                <span class="badge rm">Garis: Nilai Bantuan (RM)</span>
+                <span class="badge clickable-legend" onclick="toggleComboDataset('cBntPengusaha', 1, this)">Bar: Bilangan</span>
+                <span class="badge rm clickable-legend" onclick="toggleComboDataset('cBntPengusaha', 0, this)">Garis: Nilai Bantuan (RM)</span>
               </div>
             </div>
             <div class="canvas-container tall">
@@ -2121,6 +2136,24 @@
         chartInstances[canvasId].destroy();
       }
       chartInstances[canvasId] = new Chart(document.getElementById(canvasId), config);
+    }
+
+    function toggleComboDataset(canvasId, datasetIdx, badgeEl) {
+      const chart = chartInstances[canvasId];
+      if (!chart) return;
+      const isCurrentlyVisible = chart.isDatasetVisible(datasetIdx);
+      chart.setDatasetVisibility(datasetIdx, !isCurrentlyVisible);
+
+      // Turut sorok/papar paksi Y berkaitan supaya carta lebih kemas
+      const axisId = datasetIdx === 0 ? 'y1' : 'y';
+      if (chart.options.scales && chart.options.scales[axisId]) {
+        chart.options.scales[axisId].display = !isCurrentlyVisible;
+      }
+
+      chart.update();
+      if (badgeEl) {
+        badgeEl.classList.toggle('hidden-series', isCurrentlyVisible);
+      }
     }
 
     // Helper pembina carta gabungan dengan skala proporsional komputer untuk skrin telefon
@@ -3028,6 +3061,11 @@
         });
         return m;
       };
+
+      // Reset keadaan visual lencana boleh klik setiap kali data ditapis semula
+      document.querySelectorAll('#moduleBantuanWrap .clickable-legend').forEach(el => {
+        el.classList.remove('hidden-series');
+      });
 
       // B1. Trend Tahunan (2021–2025) - Bebas penapis Tahun
       const byYr = aggBnt(baseFilteredNoYear, d => d.tahun);
