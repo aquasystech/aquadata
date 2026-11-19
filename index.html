@@ -1464,20 +1464,20 @@
           </div>
         </div>
 
-        <!-- Jadual Ringkasan Program & Parlimen/Daerah -->
+        <!-- Jadual Ringkasan Program & Parlimen/Daerah (Boleh Disort) -->
         <div class="dual-table-grid">
           <div class="chart-section accent-teal">
             <div class="chart-top">
-              <h2 class="chart-title">B7A. Ringkasan Mengikut Program &amp; Projek</h2>
+              <h2 class="chart-title">B7A. Ringkasan Mengikut Program &amp; Projek (Klik Lajur Susun)</h2>
             </div>
             <div class="table-scroll">
               <table>
                 <thead>
                   <tr>
-                    <th>Program</th>
-                    <th>Projek</th>
-                    <th class="num">Bil. Rekod</th>
-                    <th class="num">Nilai Bantuan (RM)</th>
+                    <th onclick="sortBntProgTable('prog')">Program <span class="sort-icon" id="sort-bp-prog">⇅</span></th>
+                    <th onclick="sortBntProgTable('proj')">Projek <span class="sort-icon" id="sort-bp-proj">⇅</span></th>
+                    <th class="num" onclick="sortBntProgTable('bil')">Bil. Rekod <span class="sort-icon" id="sort-bp-bil">⇅</span></th>
+                    <th class="num" onclick="sortBntProgTable('rm')">Nilai Bantuan (RM) <span class="sort-icon" id="sort-bp-rm">▼</span></th>
                   </tr>
                 </thead>
                 <tbody id="tblBntProgram"></tbody>
@@ -1487,16 +1487,17 @@
 
           <div class="chart-section accent-indigo">
             <div class="chart-top">
-              <h2 class="chart-title">B7B. Ringkasan Mengikut Parlimen &amp; Daerah</h2>
+              <h2 class="chart-title">B7B. Ringkasan Mengikut Parlimen, Daerah &amp; Negeri (Klik Lajur Susun)</h2>
             </div>
             <div class="table-scroll">
               <table>
                 <thead>
                   <tr>
-                    <th>Parlimen</th>
-                    <th>Daerah / Negeri</th>
-                    <th class="num">Bil. Rekod</th>
-                    <th class="num">Nilai Bantuan (RM)</th>
+                    <th onclick="sortBntParlTable('parl')">Parlimen <span class="sort-icon" id="sort-bpl-parl">⇅</span></th>
+                    <th onclick="sortBntParlTable('daerah')">Daerah <span class="sort-icon" id="sort-bpl-daerah">⇅</span></th>
+                    <th onclick="sortBntParlTable('negeri')">Negeri <span class="sort-icon" id="sort-bpl-negeri">⇅</span></th>
+                    <th class="num" onclick="sortBntParlTable('bil')">Bil. Rekod <span class="sort-icon" id="sort-bpl-bil">⇅</span></th>
+                    <th class="num" onclick="sortBntParlTable('rm')">Nilai Bantuan (RM) <span class="sort-icon" id="sort-bpl-rm">▼</span></th>
                   </tr>
                 </thead>
                 <tbody id="tblBntParlimen"></tbody>
@@ -3121,7 +3122,7 @@
         }
       });
 
-      // B7A. Jadual Program & Projek
+      // B7A. Jadual Program & Projek (disimpan untuk susunan interaktif)
       const progMap = {};
       filtered.forEach(d => {
         const k = `${d.program}|||${d.projek}`;
@@ -3129,28 +3130,85 @@
         progMap[k].bil += 1;
         progMap[k].rm  += d.nilaiLulus;
       });
-      const progRows = Object.values(progMap).sort((a, b) => b.rm - a.rm);
-      document.getElementById('tblBntProgram').innerHTML = progRows.map(r => `
+      bntProgRowsCache = Object.values(progMap);
+      renderBntProgTable();
+
+      // B7B. Jadual Parlimen, Daerah & Negeri (lajur berasingan & boleh disort)
+      const parlMap = {};
+      filtered.forEach(d => {
+        const k = `${d.parlimen}|||${d.daerah}|||${d.negeri}`;
+        if (!parlMap[k]) parlMap[k] = { parl: d.parlimen, daerah: d.daerah, negeri: d.negeri, bil: 0, rm: 0 };
+        parlMap[k].bil += 1;
+        parlMap[k].rm  += d.nilaiLulus;
+      });
+      bntParlRowsCache = Object.values(parlMap);
+      renderBntParlTable();
+    }
+
+    let bntProgRowsCache = [];
+    let bntProgSort = { col: 'rm', dir: 'desc' };
+
+    function sortBntProgTable(col) {
+      if (bntProgSort.col === col) {
+        bntProgSort.dir = bntProgSort.dir === 'asc' ? 'desc' : 'asc';
+      } else {
+        bntProgSort.col = col;
+        bntProgSort.dir = (col === 'prog' || col === 'proj') ? 'asc' : 'desc';
+      }
+      ['prog', 'proj', 'bil', 'rm'].forEach(c => {
+        const el = document.getElementById(`sort-bp-${c}`);
+        if (el) el.innerText = c === bntProgSort.col ? (bntProgSort.dir === 'asc' ? '▲' : '▼') : '⇅';
+      });
+      renderBntProgTable();
+    }
+
+    function renderBntProgTable() {
+      const { col, dir } = bntProgSort;
+      const mult = dir === 'asc' ? 1 : -1;
+      const sorted = [...bntProgRowsCache].sort((a, b) =>
+        typeof a[col] === 'string'
+          ? a[col].localeCompare(b[col]) * mult
+          : (a[col] - b[col]) * mult
+      );
+      document.getElementById('tblBntProgram').innerHTML = sorted.map(r => `
         <tr>
           <td><strong>${r.prog}</strong></td>
           <td>${r.proj}</td>
           <td class="num">${fmtNum(r.bil, 0)}</td>
           <td class="num">${formatRMShort(r.rm)}</td>
         </tr>`).join('');
+    }
 
-      // B7B. Jadual Parlimen & Daerah
-      const parlMap = {};
-      filtered.forEach(d => {
-        const k = `${d.parlimen}|||${d.daerah} (${d.negeri})`;
-        if (!parlMap[k]) parlMap[k] = { parl: d.parlimen, loc: `${d.daerah} (${d.negeri})`, bil: 0, rm: 0 };
-        parlMap[k].bil += 1;
-        parlMap[k].rm  += d.nilaiLulus;
+    let bntParlRowsCache = [];
+    let bntParlSort = { col: 'rm', dir: 'desc' };
+
+    function sortBntParlTable(col) {
+      if (bntParlSort.col === col) {
+        bntParlSort.dir = bntParlSort.dir === 'asc' ? 'desc' : 'asc';
+      } else {
+        bntParlSort.col = col;
+        bntParlSort.dir = (col === 'parl' || col === 'daerah' || col === 'negeri') ? 'asc' : 'desc';
+      }
+      ['parl', 'daerah', 'negeri', 'bil', 'rm'].forEach(c => {
+        const el = document.getElementById(`sort-bpl-${c}`);
+        if (el) el.innerText = c === bntParlSort.col ? (bntParlSort.dir === 'asc' ? '▲' : '▼') : '⇅';
       });
-      const parlRows = Object.values(parlMap).sort((a, b) => b.rm - a.rm).slice(0, 50);
-      document.getElementById('tblBntParlimen').innerHTML = parlRows.map(r => `
+      renderBntParlTable();
+    }
+
+    function renderBntParlTable() {
+      const { col, dir } = bntParlSort;
+      const mult = dir === 'asc' ? 1 : -1;
+      const sorted = [...bntParlRowsCache].sort((a, b) =>
+        typeof a[col] === 'string'
+          ? a[col].localeCompare(b[col]) * mult
+          : (a[col] - b[col]) * mult
+      );
+      document.getElementById('tblBntParlimen').innerHTML = sorted.map(r => `
         <tr>
           <td><strong>${r.parl}</strong></td>
-          <td>${r.loc}</td>
+          <td>${r.daerah}</td>
+          <td>${r.negeri}</td>
           <td class="num">${fmtNum(r.bil, 0)}</td>
           <td class="num">${formatRMShort(r.rm)}</td>
         </tr>`).join('');
