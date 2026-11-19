@@ -1505,6 +1505,29 @@
             </div>
           </div>
         </div>
+
+        <!-- Jadual B7C: Ringkasan Penerima Mengikut Kod Pemohon -->
+        <div class="chart-section accent-purple">
+          <div class="chart-top" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <h2 class="chart-title" style="margin:0;">B7C. Ringkasan Penerima Mengikut Kod Pemohon (Klik Lajur Susun)</h2>
+            <input type="text" id="bntSearchKodPemohon" placeholder="Cari Kod Pemohon atau Negeri..."
+              oninput="renderBntPemohonTable()"
+              style="padding:6px 12px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:0.8rem; min-width:210px;">
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th onclick="sortBntPemohonTable('kod')">Kod Pemohon <span class="sort-icon" id="sort-bpm-kod">⇅</span></th>
+                  <th onclick="sortBntPemohonTable('negeri')">Negeri <span class="sort-icon" id="sort-bpm-negeri">⇅</span></th>
+                  <th class="num" onclick="sortBntPemohonTable('rm')">Nilai Bantuan (RM) <span class="sort-icon" id="sort-bpm-rm">▼</span></th>
+                  <th class="num" onclick="sortBntPemohonTable('kali')">Berapa Kali Terima Bantuan <span class="sort-icon" id="sort-bpm-kali">⇅</span></th>
+                </tr>
+              </thead>
+              <tbody id="tblBntPemohon"></tbody>
+            </table>
+          </div>
+        </div>
         </div><!-- Penutup #bantuanUnlockedContent -->
       </div>
 
@@ -3213,6 +3236,109 @@
           <td class="num">${fmtNum(r.bil, 0)}</td>
           <td class="num">${formatRMShort(r.rm)}</td>
         </tr>`).join('');
+
+      // Bina & papar Jadual B7C (Kod Pemohon) daripada set data bantuan bertapis semasa
+      buildBntPemohonCache();
+    }
+
+    let bntPemohonRowsCache = [];
+    let bntPemohonSort = { col: 'rm', dir: 'desc' };
+    let showAllBntPemohon = false;
+
+    function buildBntPemohonCache() {
+      if (!bantuanRawData) return;
+      const fTahun     = document.getElementById('bntFilterTahun').value;
+      const fNegeri    = document.getElementById('bntFilterNegeri').value;
+      const fDaerah    = document.getElementById('bntFilterDaerah').value;
+      const fKeputusan = document.getElementById('bntFilterKeputusan').value;
+      const fKat       = document.getElementById('bntFilterKatPemohon').value;
+      const fJb        = document.getElementById('bntFilterJenisBantuan').value;
+
+      const filtered = bantuanRawData.filter(d => {
+        if (fTahun !== 'ALL' && d.tahun !== fTahun) return false;
+        if (fNegeri !== 'ALL' && d.negeri !== fNegeri) return false;
+        if (fDaerah !== 'ALL' && d.daerah !== fDaerah) return false;
+        if (fKat !== 'ALL' && d.katPemohon !== fKat) return false;
+        if (fJb !== 'ALL' && d.jenisBantuan !== fJb) return false;
+
+        if (fKeputusan === 'LULUS' && (!d.keputusan.includes('LULUS') || d.keputusan.includes('TIDAK'))) return false;
+        if (fKeputusan === 'TIDAK LULUS' && !d.keputusan.includes('TIDAK')) return false;
+        if (fKeputusan === 'KIV' && (d.keputusan.includes('LULUS') || d.keputusan.includes('TIDAK'))) return false;
+        return true;
+      });
+
+      const map = {};
+      filtered.forEach(d => {
+        const kod = String(d.kodPemohon || '').trim();
+        if (!kod || kod === '-') return;
+        const neg = d.negeri || '-';
+        const key = `${kod}|||${neg}`;
+        if (!map[key]) map[key] = { kod: kod, negeri: neg, rm: 0, kali: 0 };
+        map[key].rm   += d.nilaiLulus;
+        map[key].kali += 1;
+      });
+
+      bntPemohonRowsCache = Object.values(map);
+      showAllBntPemohon = false;
+      renderBntPemohonTable();
+    }
+
+    function sortBntPemohonTable(col) {
+      if (bntPemohonSort.col === col) {
+        bntPemohonSort.dir = bntPemohonSort.dir === 'asc' ? 'desc' : 'asc';
+      } else {
+        bntPemohonSort.col = col;
+        bntPemohonSort.dir = (col === 'kod' || col === 'negeri') ? 'asc' : 'desc';
+      }
+      ['kod', 'negeri', 'rm', 'kali'].forEach(c => {
+        const el = document.getElementById(`sort-bpm-${c}`);
+        if (el) el.innerText = c === bntPemohonSort.col ? (bntPemohonSort.dir === 'asc' ? '▲' : '▼') : '⇅';
+      });
+      renderBntPemohonTable();
+    }
+
+    function toggleAllBntPemohonRows() {
+      showAllBntPemohon = !showAllBntPemohon;
+      renderBntPemohonTable();
+    }
+
+    function renderBntPemohonTable() {
+      const q = String((document.getElementById('bntSearchKodPemohon') || {}).value || '').toLowerCase().trim();
+      const { col, dir } = bntPemohonSort;
+      const mult = dir === 'asc' ? 1 : -1;
+
+      const filteredList = q
+        ? bntPemohonRowsCache.filter(r => r.kod.toLowerCase().includes(q) || r.negeri.toLowerCase().includes(q))
+        : bntPemohonRowsCache;
+
+      const sorted = [...filteredList].sort((a, b) =>
+        typeof a[col] === 'string'
+          ? a[col].localeCompare(b[col]) * mult
+          : (a[col] - b[col]) * mult
+      );
+
+      const limitList = (showAllBntPemohon || q) ? sorted : sorted.slice(0, 50);
+      let html = limitList.map(r => `
+        <tr>
+          <td><strong>${r.kod}</strong></td>
+          <td>${r.negeri}</td>
+          <td class="num">${formatRMShort(r.rm)}</td>
+          <td class="num"><strong>${fmtNum(r.kali, 0)} kali</strong></td>
+        </tr>`).join('');
+
+      if (!q && sorted.length > 50) {
+        html += `
+          <tr>
+            <td colspan="4" style="text-align:center; padding:10px; background:#f5f3ff;">
+              <button type="button" onclick="toggleAllBntPemohonRows()" style="background:#6d28d9; color:#fff; border:none; padding:6px 14px; border-radius:999px; font-weight:700; cursor:pointer; font-size:0.78rem;">
+                ${showAllBntPemohon ? 'Ringkaskan Top 50 Penerima' : `Papar Semua (${sorted.length} Kod Pemohon)`}
+              </button>
+            </td>
+          </tr>`;
+      }
+
+      document.getElementById('tblBntPemohon').innerHTML = html ||
+        '<tr><td colspan="4" style="text-align:center; color:#64748b;">Tiada rekod Kod Pemohon ditemui</td></tr>';
     }
     </script>
 </body>
