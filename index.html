@@ -2871,19 +2871,23 @@
     // =========================================================
     let bantuanRawData = null;
     let isBantuanLoading = false;
-    let savedBantuanPwd = sessionStorage.getItem('dof_bantuan_pwd') || '';
+    let savedBantuanPwd = '';
+
+    // Pastikan tiada kata laluan tertinggal dalam memori pelayar apabila halaman dibuka/dimuat semula
+    try { sessionStorage.removeItem('dof_bantuan_pwd'); } catch (e) {}
 
     function unlockBantuanTab() {
       const inputEl = document.getElementById('bantuanPwdInput');
       const pwd = String(inputEl.value || '').trim();
       if (!pwd) return;
       savedBantuanPwd = pwd;
+      inputEl.value = '';
       document.getElementById('bantuanPwdError').style.display = 'none';
       loadAndRenderBantuan();
     }
 
     function loadAndRenderBantuan() {
-      if (bantuanRawData !== null) {
+      if (bantuanRawData !== null && savedBantuanPwd !== '') {
         document.getElementById('bantuanLockBox').style.display = 'none';
         document.getElementById('bantuanUnlockedContent').style.display = 'flex';
         renderBantuanTab();
@@ -2908,15 +2912,12 @@
           if (arr && arr.error === 'KATA_LALUAN_SALAH') {
             isBantuanLoading = false;
             savedBantuanPwd = '';
-            sessionStorage.removeItem('dof_bantuan_pwd');
             document.getElementById('bantuanLoader').style.display = 'none';
             document.getElementById('bantuanUnlockedContent').style.display = 'none';
             document.getElementById('bantuanLockBox').style.display = 'block';
             document.getElementById('bantuanPwdError').style.display = 'block';
             return;
           }
-
-          sessionStorage.setItem('dof_bantuan_pwd', savedBantuanPwd);
           bantuanRawData = (arr || []).map(r => ({
             tahun:        String(r[0] || '').trim(),
             mesyuarat:    r[1],
