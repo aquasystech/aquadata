@@ -2865,10 +2865,14 @@
       const fKat       = document.getElementById('bntFilterKatPemohon').value;
       const fJb        = document.getElementById('bntFilterJenisBantuan').value;
 
-      // Penapisan terikat dengan Tahun, Negeri & Daerah di panel utama atas + penapis khusus bantuan
+      // Normalisasi penapis Negeri & Daerah kepada HURUF BESAR supaya sepadan 100%
+      const selNegeriUpper = new Set([...selectedFilters.negeri].map(x => String(x).toUpperCase().trim()));
+      const selDaerahUpper = new Set([...selectedFilters.daerah].map(x => String(x).toUpperCase().trim()));
+
+      // Penapisan terikat dengan Negeri & Daerah (huruf besar) + penapis khusus bantuan
       const baseFilteredNoYear = bantuanRawData.filter(d => {
-        if (selectedFilters.negeri.size > 0 && !selectedFilters.negeri.has(d.negeri)) return false;
-        if (selectedFilters.daerah.size > 0 && !selectedFilters.daerah.has(d.daerah)) return false;
+        if (selNegeriUpper.size > 0 && !selNegeriUpper.has(d.negeri)) return false;
+        if (selDaerahUpper.size > 0 && !selDaerahUpper.has(d.daerah)) return false;
         if (fKat !== 'ALL' && d.katPemohon !== fKat) return false;
         if (fJb !== 'ALL' && d.jenisBantuan !== fJb) return false;
 
@@ -2878,8 +2882,13 @@
         return true;
       });
 
+      // Semak sama ada tahun yang dipilih di atas (cth: 2026) wujud dalam data bantuan (2021–2025);
+      // jika tiada padanan (seperti Tetapan Lalai 2026), papar kesemua tahun 2021–2025 secara automatik
+      const availableBantuanYears = new Set(baseFilteredNoYear.map(d => d.tahun).filter(Boolean));
+      const matchingYears = [...selectedFilters.tahun].map(String).filter(y => availableBantuanYears.has(y));
+
       const filtered = baseFilteredNoYear.filter(d => {
-        if (selectedFilters.tahun.size > 0 && !selectedFilters.tahun.has(d.tahun)) return false;
+        if (matchingYears.length > 0 && !matchingYears.includes(d.tahun)) return false;
         return true;
       });
 
@@ -2891,7 +2900,8 @@
       const pctIR40 = bil > 0 ? ((bilIR40 / bil) * 100).toFixed(1) : '0.0';
 
       document.getElementById('kpiBntBil').innerText = fmtNum(bil, 0);
-      document.getElementById('kpiBntLulusSub').innerText = `Status: ${fKeputusan}`;
+      document.getElementById('kpiBntLulusSub').innerText =
+        `Status: ${fKeputusan} (Rekod Dimuat: ${bantuanRawData.length})`;
       document.getElementById('kpiBntNilai').innerText = formatRMShort(totNilai);
       document.getElementById('kpiBntPurata').innerText = formatRMShort(purata);
       document.getElementById('kpiBntIR40').innerText = `IR 4.0: ${pctIR40}% (${bilIR40} projek)`;
