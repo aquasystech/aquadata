@@ -875,14 +875,26 @@
 </head>
 <body>
   <div class="vertical-wrapper">
-    <!-- Tajuk Utama + Logo DOF Tanpa Latar Putih -->
-    <div class="header-card">
-      <div class="logo-wrap">
-        <img src="https://raw.githubusercontent.com/usopdrahman/logbookdof/1f784168ab48de031417c6fcb8677322765604eb/DOF%20LOGO.png" alt="Logo Jabatan Perikanan Malaysia (DOF)">
+    <!-- Tajuk Utama + Logo DOF + Penukar Mod Penuh -->
+    <div class="header-card" style="justify-content: space-between; flex-wrap: wrap;">
+      <div style="display:flex; align-items:center; gap:10px; min-width:0; flex:1;">
+        <div class="logo-wrap">
+          <img src="https://raw.githubusercontent.com/usopdrahman/logbookdof/1f784168ab48de031417c6fcb8677322765604eb/DOF%20LOGO.png" alt="Logo Jabatan Perikanan Malaysia (DOF)">
+        </div>
+        <div class="header-text">
+          <h1 id="mainHeaderTitle">Dashboard Akuakultur Malaysia</h1>
+          <p id="mainHeaderSub">Jabatan Perikanan Malaysia (DOF) — Analisis Pengeluaran, Nilai Borong &amp; Harga Purata (RM/kg)</p>
+        </div>
       </div>
-      <div class="header-text">
-        <h1>Dashboard Akuakultur Malaysia</h1>
-        <p>Jabatan Perikanan Malaysia (DOF) — Analisis Pengeluaran, Nilai Borong &amp; Harga Purata (RM/kg)</p>
+      <div style="display:flex; gap:6px; flex-shrink:0;">
+        <button type="button" id="modeBtnPengeluaran" onclick="switchMainModule('pengeluaran')"
+          style="background:#ffffff; color:#0369a1; border:none; padding:7px 12px; border-radius:999px; font-size:0.74rem; font-weight:800; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.18);">
+          📊 Data Pengeluaran
+        </button>
+        <button type="button" id="modeBtnBantuan" onclick="switchMainModule('bantuan')"
+          style="background:rgba(15,23,42,0.32); color:#ffffff; border:1px solid rgba(255,255,255,0.45); padding:7px 12px; border-radius:999px; font-size:0.74rem; font-weight:800; cursor:pointer;">
+          🔒 Portal Bantuan SPeKS
+        </button>
       </div>
     </div>
 
@@ -894,8 +906,13 @@
     </div>
 
     <div id="dashboardContent" class="dash-stack">
+
+      <!-- ========================================================= -->
+      <!-- MODUL UTAMA 1: DATA PENGELUARAN AKUAKULTUR                -->
+      <!-- ========================================================= -->
+      <div id="modulePengeluaranWrap" style="display:flex; flex-direction:column; gap:10px;">
       
-      <!-- Panel Penapis Sticky di Atas -->
+      <!-- Panel Penapis Data Pengeluaran -->
       <div class="filter-card">
         <div class="filter-header">
           <div class="filter-title-wrap">
@@ -951,7 +968,7 @@
         </div>
       </div>
 
-      <!-- BAR NAVIGASI 4 SUBMODUL (PARTITION) -->
+      <!-- BAR NAVIGASI 4 SUBMODUL PENGELUARAN -->
       <div class="submod-nav" role="tablist">
         <button type="button" class="submod-btn active" id="tabBtn-overview" onclick="switchSubmodule('overview')">
           📊 1. Ringkasan &amp; Trend Semasa
@@ -964,9 +981,6 @@
         </button>
         <button type="button" class="submod-btn" id="tabBtn-tables" onclick="switchSubmodule('tables')">
           📋 4. Jadual &amp; Cetak Laporan
-        </button>
-        <button type="button" class="submod-btn" id="tabBtn-bantuan" onclick="switchSubmodule('bantuan')">
-          🎁 5. Bantuan Akua (2021–2025)
         </button>
       </div>
 
@@ -1229,58 +1243,93 @@
         </div>
       </div>
 
+      </div><!-- Penutup #modulePengeluaranWrap -->
+
       <!-- ========================================================= -->
-      <!-- TAB 5: BANTUAN SPeKS & AKUAKULTUR (2021–2025)             -->
+      <!-- MODUL UTAMA 2: PORTAL KHAS BANTUAN SPeKS (2021–2025)      -->
       <!-- ========================================================= -->
-      <div id="pane-bantuan" class="submod-pane">
-        <!-- Skrin Kunci Kata Laluan Tab 5 -->
-        <div id="bantuanLockBox" class="chart-section accent-purple" style="text-align:center; padding:32px 16px;">
-          <div style="font-size:2.4rem; margin-bottom:8px;">🔒</div>
-          <h2 class="chart-title" style="font-size:1.05rem; margin-bottom:6px;">Akses Terhad — Modul Bantuan Akuakultur</h2>
-          <p style="font-size:0.82rem; color:#475569; max-width:420px; margin:0 auto 14px auto;">
-            Sila masukkan kata laluan pegawai yang dibenarkan untuk memaparkan analisis peruntukan dan penerima bantuan.
+      <div id="moduleBantuanWrap" style="display:none; flex-direction:column; gap:10px;">
+        <!-- Skrin Kunci Kata Laluan Penuh -->
+        <div id="bantuanLockBox" class="chart-section accent-purple" style="text-align:center; padding:42px 16px;">
+          <div style="font-size:2.8rem; margin-bottom:10px;">🔒</div>
+          <h2 class="chart-title" style="font-size:1.15rem; margin-bottom:6px;">Akses Terhad — Portal Bantuan SPeKS &amp; Akuakultur</h2>
+          <p style="font-size:0.85rem; color:#475569; max-width:440px; margin:0 auto 16px auto;">
+            Halaman ini dikhaskan untuk semakan rekod peruntukan dan penerima bantuan (2021–2025). Sila masukkan kata laluan pegawai untuk meneruskan.
           </p>
-          <div style="display:flex; justify-content:center; gap:8px; flex-wrap:wrap; max-width:360px; margin:0 auto;">
+          <div style="display:flex; justify-content:center; gap:8px; flex-wrap:wrap; max-width:380px; margin:0 auto;">
             <input type="password" id="bantuanPwdInput" placeholder="Masukkan kata laluan..."
               onkeydown="if(event.key==='Enter') unlockBantuanTab()"
-              style="flex:1; min-width:180px; padding:9px 12px; border:1.5px solid #0284c7; border-radius:8px; font-size:0.88rem;">
+              style="flex:1; min-width:190px; padding:10px 14px; border:1.5px solid #0284c7; border-radius:9px; font-size:0.9rem;">
             <button type="button" onclick="unlockBantuanTab()"
-              style="background:#0284c7; color:#ffffff; border:none; padding:9px 16px; border-radius:8px; font-weight:700; font-size:0.86rem; cursor:pointer;">
-              Buka Akses
+              style="background:#0284c7; color:#ffffff; border:none; padding:10px 18px; border-radius:9px; font-weight:700; font-size:0.88rem; cursor:pointer;">
+              Buka Portal
             </button>
           </div>
-          <div id="bantuanPwdError" style="display:none; color:#be123c; font-size:0.8rem; font-weight:700; margin-top:10px;">
+          <div id="bantuanPwdError" style="display:none; color:#be123c; font-size:0.82rem; font-weight:700; margin-top:10px;">
             Kata laluan tidak sah. Sila cuba lagi.
+          </div>
+          <div style="margin-top:18px;">
+            <button type="button" onclick="switchMainModule('pengeluaran')"
+              style="background:transparent; color:#0369a1; border:1px solid #cbd5e1; padding:6px 14px; border-radius:999px; font-size:0.78rem; font-weight:700; cursor:pointer;">
+              ← Kembali ke Dashboard Pengeluaran
+            </button>
           </div>
         </div>
 
-        <!-- Kandungan Sebenar Tab 5 (Tersembunyi sehingga kata laluan disahkan) -->
+        <!-- Kandungan Penuh Portal Bantuan SPeKS (Tersembunyi sehingga kata laluan disahkan) -->
         <div id="bantuanUnlockedContent" style="display:none; flex-direction:column; gap:10px;">
-        <!-- Penapis Khusus Bantuan (Keputusan J/K Induk, Kategori Pemohon, Jenis Bantuan, Program) -->
-        <div class="inchart-controls">
-          <div class="inchart-group">
-            <span class="inchart-label">Keputusan J/K:</span>
-            <select id="bntFilterKeputusan" class="inchart-select" onchange="renderBantuanTab()">
-              <option value="ALL">Semua Keputusan</option>
-              <option value="LULUS" selected>Lulus Sahaja</option>
-              <option value="TIDAK LULUS">Tidak Lulus</option>
-              <option value="KIV">KIV / Dalam Proses</option>
-            </select>
+          <!-- Panel Penapis Khusus Bantuan SPeKS -->
+          <div class="filter-card" style="border-color:#7c3aed;">
+            <div class="filter-header" style="margin-bottom:6px;">
+              <div class="filter-title-wrap">
+                <span class="f-title" style="color:#6d28d9;">Penapis Data Bantuan SPeKS</span>
+              </div>
+              <div class="filter-btn-group">
+                <button type="button" class="btn-reset" onclick="resetBantuanFilters()">Reset Penapis Bantuan</button>
+              </div>
+            </div>
+            <div class="filter-grid">
+              <div class="filter-item">
+                <label>Peruntukan Tahun</label>
+                <select id="bntFilterTahun" class="ms-btn" onchange="renderBantuanTab()">
+                  <option value="ALL">Semua Tahun (2021–2025)</option>
+                </select>
+              </div>
+              <div class="filter-item">
+                <label>Negeri</label>
+                <select id="bntFilterNegeri" class="ms-btn" onchange="onBantuanNegeriChange()">
+                  <option value="ALL">Semua Negeri</option>
+                </select>
+              </div>
+              <div class="filter-item">
+                <label>Daerah</label>
+                <select id="bntFilterDaerah" class="ms-btn" onchange="renderBantuanTab()">
+                  <option value="ALL">Semua Daerah</option>
+                </select>
+              </div>
+              <div class="filter-item">
+                <label>Keputusan J/K Induk</label>
+                <select id="bntFilterKeputusan" class="ms-btn" onchange="renderBantuanTab()">
+                  <option value="ALL" selected>Semua Keputusan</option>
+                  <option value="LULUS">Lulus Sahaja</option>
+                  <option value="TIDAK LULUS">Tidak Lulus</option>
+                  <option value="KIV">KIV / Dalam Proses</option>
+                </select>
+              </div>
+              <div class="filter-item">
+                <label>Kategori Pemohon</label>
+                <select id="bntFilterKatPemohon" class="ms-btn" onchange="renderBantuanTab()">
+                  <option value="ALL">Semua Kategori</option>
+                </select>
+              </div>
+              <div class="filter-item">
+                <label>Jenis Bantuan</label>
+                <select id="bntFilterJenisBantuan" class="ms-btn" onchange="renderBantuanTab()">
+                  <option value="ALL">Semua Jenis Bantuan</option>
+                </select>
+              </div>
+            </div>
           </div>
-          <div class="inchart-group">
-            <span class="inchart-label">Kategori Pemohon:</span>
-            <select id="bntFilterKatPemohon" class="inchart-select" onchange="renderBantuanTab()">
-              <option value="ALL">Semua Kategori</option>
-            </select>
-          </div>
-          <div class="inchart-group">
-            <span class="inchart-label">Jenis Bantuan:</span>
-            <select id="bntFilterJenisBantuan" class="inchart-select" onchange="renderBantuanTab()">
-              <option value="ALL">Semua Jenis Bantuan</option>
-            </select>
-          </div>
-          <span class="badge">Selari dengan penapis Tahun, Negeri &amp; Daerah di atas</span>
-        </div>
 
         <div id="bantuanLoader" style="display:none; text-align:center; padding:24px; background:#fff; border-radius:12px; font-weight:700; color:#0369a1;">
           Sedang memuatkan rekod Bantuan Akuakultur 2021–2025...
@@ -1927,16 +1976,50 @@
 
       updateKPIs(filtered, uCfg);
 
-      dirtySubmodules = { overview: true, tenyear: true, species: true, tables: true, bantuan: true };
+      dirtySubmodules = { overview: true, tenyear: true, species: true, tables: true };
       renderActiveSubmodule();
     }
 
+    let activeMainModule = 'pengeluaran';
     let activeSubmodule = 'overview';
-    let dirtySubmodules = { overview: true, tenyear: true, species: true, tables: true, bantuan: true };
+    let dirtySubmodules = { overview: true, tenyear: true, species: true, tables: true };
+
+    function switchMainModule(mode) {
+      activeMainModule = mode;
+      const isPeng = (mode === 'pengeluaran');
+
+      document.getElementById('modulePengeluaranWrap').style.display = isPeng ? 'flex' : 'none';
+      document.getElementById('moduleBantuanWrap').style.display     = isPeng ? 'none' : 'flex';
+
+      const btnP = document.getElementById('modeBtnPengeluaran');
+      const btnB = document.getElementById('modeBtnBantuan');
+
+      if (isPeng) {
+        btnP.style.background = '#ffffff';
+        btnP.style.color      = '#0369a1';
+        btnP.style.border     = 'none';
+        btnB.style.background = 'rgba(15,23,42,0.32)';
+        btnB.style.color      = '#ffffff';
+        btnB.style.border     = '1px solid rgba(255,255,255,0.45)';
+        document.getElementById('mainHeaderTitle').innerText = 'Dashboard Akuakultur Malaysia';
+        document.getElementById('mainHeaderSub').innerText   = 'Jabatan Perikanan Malaysia (DOF) — Analisis Pengeluaran, Nilai Borong & Harga Purata (RM/kg)';
+        renderActiveSubmodule();
+      } else {
+        btnB.style.background = '#ffffff';
+        btnB.style.color      = '#6d28d9';
+        btnB.style.border     = 'none';
+        btnP.style.background = 'rgba(15,23,42,0.32)';
+        btnP.style.color      = '#ffffff';
+        btnP.style.border     = '1px solid rgba(255,255,255,0.45)';
+        document.getElementById('mainHeaderTitle').innerText = 'Portal Bantuan SPeKS & Akuakultur';
+        document.getElementById('mainHeaderSub').innerText   = 'Jabatan Perikanan Malaysia (DOF) — Analisis Peruntukan, Kelulusan & Profil Penerima (2021–2025)';
+        loadAndRenderBantuan();
+      }
+    }
 
     function switchSubmodule(tabName) {
       activeSubmodule = tabName;
-      ['overview', 'tenyear', 'species', 'tables', 'bantuan'].forEach(t => {
+      ['overview', 'tenyear', 'species', 'tables'].forEach(t => {
         document.getElementById(`tabBtn-${t}`).classList.toggle('active', t === tabName);
         document.getElementById(`pane-${t}`).classList.toggle('active', t === tabName);
       });
@@ -1958,8 +2041,6 @@
       } else if (activeSubmodule === 'tables') {
         updateSpeciesTable(filtered, uCfg);
         updateDaerahTable(filtered, uCfg);
-      } else if (activeSubmodule === 'bantuan') {
-        loadAndRenderBantuan();
       }
       dirtySubmodules[activeSubmodule] = false;
     }
@@ -2844,33 +2925,68 @@
     }
 
     function populateBantuanDropdowns() {
+      const thnSet = [...new Set(bantuanRawData.map(d => d.tahun).filter(x => x && x !== '-'))].sort();
+      const negSet = [...new Set(bantuanRawData.map(d => d.negeri).filter(x => x && x !== '-'))].sort();
       const katSet = [...new Set(bantuanRawData.map(d => d.katPemohon).filter(x => x && x !== '-'))].sort();
       const jbSet  = [...new Set(bantuanRawData.map(d => d.jenisBantuan).filter(x => x && x !== '-'))].sort();
 
-      const selKat = document.getElementById('bntFilterKatPemohon');
-      selKat.innerHTML = '<option value="ALL">Semua Kategori</option>' +
+      document.getElementById('bntFilterTahun').innerHTML =
+        '<option value="ALL">Semua Tahun (2021–2025)</option>' +
+        thnSet.map(v => `<option value="${v}">${v}</option>`).join('');
+
+      document.getElementById('bntFilterNegeri').innerHTML =
+        '<option value="ALL">Semua Negeri</option>' +
+        negSet.map(v => `<option value="${v}">${v}</option>`).join('');
+
+      document.getElementById('bntFilterKatPemohon').innerHTML =
+        '<option value="ALL">Semua Kategori</option>' +
         katSet.map(v => `<option value="${v}">${v}</option>`).join('');
 
-      const selJb = document.getElementById('bntFilterJenisBantuan');
-      selJb.innerHTML = '<option value="ALL">Semua Jenis Bantuan</option>' +
+      document.getElementById('bntFilterJenisBantuan').innerHTML =
+        '<option value="ALL">Semua Jenis Bantuan</option>' +
         jbSet.map(v => `<option value="${v}">${v}</option>`).join('');
+
+      onBantuanNegeriChange(false);
+    }
+
+    function onBantuanNegeriChange(shouldRender = true) {
+      const selNeg = document.getElementById('bntFilterNegeri').value;
+      const drhSet = [...new Set(
+        bantuanRawData
+          .filter(d => selNeg === 'ALL' || d.negeri === selNeg)
+          .map(d => d.daerah)
+          .filter(x => x && x !== '-')
+      )].sort();
+
+      document.getElementById('bntFilterDaerah').innerHTML =
+        '<option value="ALL">Semua Daerah</option>' +
+        drhSet.map(v => `<option value="${v}">${v}</option>`).join('');
+
+      if (shouldRender) renderBantuanTab();
+    }
+
+    function resetBantuanFilters() {
+      document.getElementById('bntFilterTahun').value        = 'ALL';
+      document.getElementById('bntFilterNegeri').value       = 'ALL';
+      document.getElementById('bntFilterKeputusan').value    = 'ALL';
+      document.getElementById('bntFilterKatPemohon').value   = 'ALL';
+      document.getElementById('bntFilterJenisBantuan').value = 'ALL';
+      onBantuanNegeriChange(true);
     }
 
     function renderBantuanTab() {
       if (!bantuanRawData) return;
 
+      const fTahun     = document.getElementById('bntFilterTahun').value;
+      const fNegeri    = document.getElementById('bntFilterNegeri').value;
+      const fDaerah    = document.getElementById('bntFilterDaerah').value;
       const fKeputusan = document.getElementById('bntFilterKeputusan').value;
       const fKat       = document.getElementById('bntFilterKatPemohon').value;
       const fJb        = document.getElementById('bntFilterJenisBantuan').value;
 
-      // Normalisasi penapis Negeri & Daerah kepada HURUF BESAR supaya sepadan 100%
-      const selNegeriUpper = new Set([...selectedFilters.negeri].map(x => String(x).toUpperCase().trim()));
-      const selDaerahUpper = new Set([...selectedFilters.daerah].map(x => String(x).toUpperCase().trim()));
-
-      // Penapisan terikat dengan Negeri & Daerah (huruf besar) + penapis khusus bantuan
       const baseFilteredNoYear = bantuanRawData.filter(d => {
-        if (selNegeriUpper.size > 0 && !selNegeriUpper.has(d.negeri)) return false;
-        if (selDaerahUpper.size > 0 && !selDaerahUpper.has(d.daerah)) return false;
+        if (fNegeri !== 'ALL' && d.negeri !== fNegeri) return false;
+        if (fDaerah !== 'ALL' && d.daerah !== fDaerah) return false;
         if (fKat !== 'ALL' && d.katPemohon !== fKat) return false;
         if (fJb !== 'ALL' && d.jenisBantuan !== fJb) return false;
 
@@ -2880,13 +2996,8 @@
         return true;
       });
 
-      // Semak sama ada tahun yang dipilih di atas (cth: 2026) wujud dalam data bantuan (2021–2025);
-      // jika tiada padanan (seperti Tetapan Lalai 2026), papar kesemua tahun 2021–2025 secara automatik
-      const availableBantuanYears = new Set(baseFilteredNoYear.map(d => d.tahun).filter(Boolean));
-      const matchingYears = [...selectedFilters.tahun].map(String).filter(y => availableBantuanYears.has(y));
-
       const filtered = baseFilteredNoYear.filter(d => {
-        if (matchingYears.length > 0 && !matchingYears.includes(d.tahun)) return false;
+        if (fTahun !== 'ALL' && d.tahun !== fTahun) return false;
         return true;
       });
 
@@ -2899,7 +3010,7 @@
 
       document.getElementById('kpiBntBil').innerText = fmtNum(bil, 0);
       document.getElementById('kpiBntLulusSub').innerText =
-        `Status: ${fKeputusan} (Rekod Dimuat: ${bantuanRawData.length})`;
+        `Status: ${fKeputusan} (Rekod: ${bantuanRawData.length})`;
       document.getElementById('kpiBntNilai').innerText = formatRMShort(totNilai);
       document.getElementById('kpiBntPurata').innerText = formatRMShort(purata);
       document.getElementById('kpiBntIR40').innerText = `IR 4.0: ${pctIR40}% (${bilIR40} projek)`;
