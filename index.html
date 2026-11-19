@@ -2124,7 +2124,7 @@
     }
 
     // Helper pembina carta gabungan dengan skala proporsional komputer untuk skrin telefon
-    function buildComboChart(canvasId, labels, pengArr, rmArr, uCfg, barColors, showFlags = false) {
+    function buildComboChart(canvasId, labels, pengArr, rmArr, uCfg, barColors, showFlags = false, hideLegend = false) {
       const isMobile = window.innerWidth < 1024;
       const dlSize   = isMobile ? 7.5 : 10;
       const tickSize = isMobile ? 8.5 : 11;
@@ -2137,7 +2137,7 @@
           datasets: [
             {
               type: 'line',
-              label: 'Nilai Borong (RM)',
+              label: hideLegend ? 'Nilai Bantuan (RM)' : 'Nilai Borong (RM)',
               data: rmArr,
               borderColor: '#e11d48',
               backgroundColor: '#e11d48',
@@ -2195,7 +2195,7 @@
           interaction: { mode: 'index', intersect: false },
           plugins: {
             legend: {
-              display: true,
+              display: !hideLegend,
               position: 'top',
               labels: {
                 boxWidth: isMobile ? 10 : 14,
@@ -2206,8 +2206,8 @@
             tooltip: {
               callbacks: {
                 label: ctx => ctx.dataset.yAxisID === 'y1'
-                  ? ` Nilai Borong: ${formatRMShort(ctx.raw)}`
-                  : ` Pengeluaran: ${fmtNum(ctx.raw, 2)} ${uCfg.unit}`
+                  ? ` ${hideLegend ? 'Nilai Bantuan' : 'Nilai Borong'}: ${formatRMShort(ctx.raw)}`
+                  : ` ${hideLegend ? 'Bilangan' : 'Pengeluaran'}: ${fmtNum(ctx.raw, hideLegend ? 0 : 2)} ${uCfg.unit}`
               }
             }
           },
@@ -2233,7 +2233,7 @@
               position: 'right',
               grace: '18%',
               grid: { drawOnChartArea: false },
-              title: { display: !isMobile, text: 'Nilai Borong (RM)', font: { size: axisTitleSize } },
+              title: { display: !isMobile, text: hideLegend ? 'Nilai Bantuan (RM)' : 'Nilai Borong (RM)', font: { size: axisTitleSize } },
               ticks: {
                 font: { size: tickSize },
                 callback: v => formatCompactLabel(v, true)
@@ -3032,23 +3032,23 @@
       // B1. Trend Tahunan (2021–2025) - Bebas penapis Tahun
       const byYr = aggBnt(baseFilteredNoYear, d => d.tahun);
       const yrs = Object.keys(byYr).filter(x => x && x !== '-').sort();
-      buildComboChart('cBntTahun', yrs, yrs.map(y => byYr[y].peng), yrs.map(y => byYr[y].rm), unitBnt, '#7c3aed', false);
+      buildComboChart('cBntTahun', yrs, yrs.map(y => byYr[y].peng), yrs.map(y => byYr[y].rm), unitBnt, '#7c3aed', false, true);
 
       // B2. Kedudukan Negeri (dengan bendera negeri)
       const byNeg = Object.entries(aggBnt(filtered, d => d.negeri)).sort((a, b) => b[1].rm - a[1].rm);
-      buildComboChart('cBntNegeri', byNeg.map(x => x[0]), byNeg.map(x => x[1].peng), byNeg.map(x => x[1].rm), unitBnt, '#0d9488', true);
+      buildComboChart('cBntNegeri', byNeg.map(x => x[0]), byNeg.map(x => x[1].peng), byNeg.map(x => x[1].rm), unitBnt, '#0d9488', true, true);
 
       // B3. Jenis Bantuan
       const byJb = Object.entries(aggBnt(filtered, d => d.jenisBantuan)).sort((a, b) => b[1].rm - a[1].rm);
-      buildComboChart('cBntJenis', byJb.map(x => x[0]), byJb.map(x => x[1].peng), byJb.map(x => x[1].rm), unitBnt, '#4f46e5', false);
+      buildComboChart('cBntJenis', byJb.map(x => x[0]), byJb.map(x => x[1].peng), byJb.map(x => x[1].rm), unitBnt, '#4f46e5', false, true);
 
       // B4. Jenis Akuakultur (AT, AM, IH, RP, HATCH)
       const byAk = Object.entries(aggBnt(filtered, d => d.jenisAkua)).sort((a, b) => b[1].rm - a[1].rm);
-      buildComboChart('cBntAkua', byAk.map(x => x[0]), byAk.map(x => x[1].peng), byAk.map(x => x[1].rm), unitBnt, '#0284c7', false);
+      buildComboChart('cBntAkua', byAk.map(x => x[0]), byAk.map(x => x[1].peng), byAk.map(x => x[1].rm), unitBnt, '#0284c7', false, true);
 
       // B5. Kategori Pengusaha
       const byKp = Object.entries(aggBnt(filtered, d => d.katPengusaha)).sort((a, b) => b[1].rm - a[1].rm);
-      buildComboChart('cBntPengusaha', byKp.map(x => x[0]), byKp.map(x => x[1].peng), byKp.map(x => x[1].rm), unitBnt, '#059669', false);
+      buildComboChart('cBntPengusaha', byKp.map(x => x[0]), byKp.map(x => x[1].peng), byKp.map(x => x[1].rm), unitBnt, '#059669', false, true);
 
       // B6. Bar Ringkas Pematuhan SKL, e-SMPP & IR 4.0
       const sklCount  = filtered.filter(d => d.noSkl === 'Berlesen (SKL)').length;
