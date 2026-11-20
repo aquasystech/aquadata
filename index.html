@@ -1425,14 +1425,15 @@
           </div>
         </div>
 
-        <!-- Baris Carta 1: Trend Tahunan Ladang & Kedudukan Negeri -->
+        <!-- Baris Carta 1: Trend Tahunan Ladang & Kedudukan Negeri (3 Metrik) -->
         <div class="chart-row-2col">
           <div class="chart-section accent-teal">
             <div class="chart-top">
-              <h2 class="chart-title">L1. Trend Bilangan Ladang &amp; Keluasan Mengikut Tahun</h2>
+              <h2 class="chart-title">L1. Trend Tahunan: Ladang, Keluasan &amp; Pengeluaran</h2>
               <div class="metric-badges">
-                <span class="badge purple clickable-legend" onclick="toggleComboDataset('cLdgTahun', 1, this)">Bar: Bilangan Ladang</span>
-                <span class="badge rm clickable-legend" onclick="toggleComboDataset('cLdgTahun', 0, this)">Garis: Keluasan (Ha)</span>
+                <span class="badge clickable-legend" onclick="toggleLadangTripleDataset('cLdgTahun', 2, this)">Bar: Bil. Ladang</span>
+                <span class="badge rm clickable-legend" onclick="toggleLadangTripleDataset('cLdgTahun', 1, this)">Garis 1: Keluasan (Ha)</span>
+                <span class="badge purple clickable-legend" id="badgeL1Peng" onclick="toggleLadangTripleDataset('cLdgTahun', 0, this)">Garis 2: Pengeluaran</span>
               </div>
             </div>
             <div class="canvas-container tall">
@@ -1442,10 +1443,11 @@
 
           <div class="chart-section accent-emerald">
             <div class="chart-top">
-              <h2 class="chart-title">L2. Kedudukan Negeri: Bilangan Ladang vs Keluasan (Ha)</h2>
+              <h2 class="chart-title">L2. Kedudukan Negeri: Ladang, Keluasan &amp; Pengeluaran</h2>
               <div class="metric-badges">
-                <span class="badge clickable-legend" onclick="toggleComboDataset('cLdgNegeri', 1, this)">Bar: Bilangan Ladang</span>
-                <span class="badge rm clickable-legend" onclick="toggleComboDataset('cLdgNegeri', 0, this)">Garis: Keluasan (Ha)</span>
+                <span class="badge clickable-legend" onclick="toggleLadangTripleDataset('cLdgNegeri', 2, this)">Bar: Bil. Ladang</span>
+                <span class="badge rm clickable-legend" onclick="toggleLadangTripleDataset('cLdgNegeri', 1, this)">Garis 1: Keluasan (Ha)</span>
+                <span class="badge purple clickable-legend" id="badgeL2Peng" onclick="toggleLadangTripleDataset('cLdgNegeri', 0, this)">Garis 2: Pengeluaran</span>
               </div>
             </div>
             <div class="canvas-container tall">
@@ -1454,14 +1456,15 @@
           </div>
         </div>
 
-        <!-- Baris Carta 2: Sistem Ternakan & Jenis Akuakultur -->
+        <!-- Baris Carta 2: Sistem Ternakan & Jenis Akuakultur (3 Metrik) -->
         <div class="chart-row-2col">
           <div class="chart-section accent-indigo">
             <div class="chart-top">
-              <h2 class="chart-title">L3. Pecahan Mengikut Sistem Ternakan</h2>
+              <h2 class="chart-title">L3. Sistem Ternakan: Ladang, Keluasan &amp; Pengeluaran</h2>
               <div class="metric-badges">
-                <span class="badge purple clickable-legend" onclick="toggleComboDataset('cLdgSistem', 1, this)">Bar: Bilangan Ladang</span>
-                <span class="badge rm clickable-legend" onclick="toggleComboDataset('cLdgSistem', 0, this)">Garis: Keluasan (Ha)</span>
+                <span class="badge clickable-legend" onclick="toggleLadangTripleDataset('cLdgSistem', 2, this)">Bar: Bil. Ladang</span>
+                <span class="badge rm clickable-legend" onclick="toggleLadangTripleDataset('cLdgSistem', 1, this)">Garis 1: Keluasan (Ha)</span>
+                <span class="badge purple clickable-legend" id="badgeL3Peng" onclick="toggleLadangTripleDataset('cLdgSistem', 0, this)">Garis 2: Pengeluaran</span>
               </div>
             </div>
             <div class="canvas-container tall">
@@ -1471,10 +1474,11 @@
 
           <div class="chart-section accent-pink">
             <div class="chart-top">
-              <h2 class="chart-title">L4. Pecahan Mengikut Jenis Akuakultur (AT, AM, IH, RP, HATCH)</h2>
+              <h2 class="chart-title">L4. Jenis Akuakultur: Ladang, Keluasan &amp; Pengeluaran</h2>
               <div class="metric-badges">
-                <span class="badge clickable-legend" onclick="toggleComboDataset('cLdgAkua', 1, this)">Bar: Bilangan Ladang</span>
-                <span class="badge rm clickable-legend" onclick="toggleComboDataset('cLdgAkua', 0, this)">Garis: Keluasan (Ha)</span>
+                <span class="badge clickable-legend" onclick="toggleLadangTripleDataset('cLdgAkua', 2, this)">Bar: Bil. Ladang</span>
+                <span class="badge rm clickable-legend" onclick="toggleLadangTripleDataset('cLdgAkua', 1, this)">Garis 1: Keluasan (Ha)</span>
+                <span class="badge purple clickable-legend" id="badgeL4Peng" onclick="toggleLadangTripleDataset('cLdgAkua', 0, this)">Garis 2: Pengeluaran</span>
               </div>
             </div>
             <div class="canvas-container tall">
@@ -4118,7 +4122,11 @@
       const prodSource = (typeof rawData !== 'undefined' && Array.isArray(rawData)) ? rawData : [];
       let linkedPengVal = 0;
       let linkedRm      = 0;
-      const prodByNegSis = {};
+      const prodByNegSis  = {};
+      const prodByYear    = {};
+      const prodByNegeri  = {};
+      const prodBySistem  = {};
+      const prodByAkua    = {};
 
       prodSource.forEach(p => {
         const pTahun  = String(p.tahun || '').toUpperCase().trim();
@@ -4127,7 +4135,6 @@
         const pAkua   = String(p.jenisAkua || '').toUpperCase().trim();
         const pSistem = String(p.sTernakan || '').toUpperCase().trim();
 
-        if (upSetTahun.size > 0  && !upSetTahun.has(pTahun))   return;
         if (upSetNegeri.size > 0 && !upSetNegeri.has(pNegeri)) return;
         if (upSetDaerah.size > 0 && !upSetDaerah.has(pDaerah)) return;
         if (upSetAkua.size > 0   && !upSetAkua.has(pAkua))     return;
@@ -4135,8 +4142,18 @@
 
         const pengVal = Number(p.pengeluaran) || 0;
         const rmVal   = Number(p.nilaiBorong) || 0;
+
+        // Kumpul pengeluaran mengikut tahun (bebas penapis Tahun untuk carta L1)
+        prodByYear[pTahun] = (prodByYear[pTahun] || 0) + pengVal;
+
+        if (upSetTahun.size > 0 && !upSetTahun.has(pTahun)) return;
+
         linkedPengVal += pengVal;
         linkedRm      += rmVal;
+
+        prodByNegeri[pNegeri] = (prodByNegeri[pNegeri] || 0) + pengVal;
+        prodBySistem[pSistem] = (prodBySistem[pSistem] || 0) + pengVal;
+        prodByAkua[pAkua]     = (prodByAkua[pAkua]     || 0) + pengVal;
 
         const key = `${pNegeri}|||${pSistem}`;
         if (!prodByNegSis[key]) prodByNegSis[key] = { peng: 0, rm: 0 };
@@ -4150,7 +4167,11 @@
       document.getElementById('kpiLdgLinkProdSub').innerText =
         `Purata Hasil/Ladang: ${fmtNum(avgPengPerFarm, decUnit)} ${uCfgLink.unit}`;
 
-      // Reset lencana boleh klik pada modul ladang
+      // Kemas kini label unit pada lencana Garis 2 (Pengeluaran) bagi L1-L4 & reset status aktif
+      ['badgeL1Peng', 'badgeL2Peng', 'badgeL3Peng', 'badgeL4Peng'].forEach(bid => {
+        const el = document.getElementById(bid);
+        if (el) el.innerText = `Garis 2: Pengeluaran (${uCfgLink.unit})`;
+      });
       document.querySelectorAll('#moduleLadangWrap .clickable-legend').forEach(el => {
         el.classList.remove('hidden-series');
       });
@@ -4166,22 +4187,46 @@
         return m;
       };
 
-      // L1. Trend Bilangan Ladang & Keluasan Mengikut Tahun (Bebas penapis Tahun)
+      // L1. Trend Tahunan: Bil. Ladang + Keluasan (Ha) + Pengeluaran (Bebas penapis Tahun)
       const byYr = aggLdg(filteredNoYear, d => d.tahun);
       const yrs  = Object.keys(byYr).filter(x => x && x !== '-').sort();
-      buildLadangComboChart('cLdgTahun', yrs, yrs.map(y => byYr[y].bil), yrs.map(y => byYr[y].luas), '#0d9488', false);
+      buildLadangTripleChart(
+        'cLdgTahun', yrs,
+        yrs.map(y => byYr[y].bil),
+        yrs.map(y => byYr[y].luas),
+        yrs.map(y => prodByYear[y.toUpperCase().trim()] || 0),
+        uCfgLink, '#0d9488', false
+      );
 
-      // L2. Kedudukan Negeri (dengan bendera negeri)
+      // L2. Kedudukan Negeri (dengan bendera negeri) + Pengeluaran
       const byNeg = Object.entries(aggLdg(filtered, d => d.negeri)).sort((a, b) => b[1].bil - a[1].bil);
-      buildLadangComboChart('cLdgNegeri', byNeg.map(x => x[0]), byNeg.map(x => x[1].bil), byNeg.map(x => x[1].luas), '#0284c7', true);
+      buildLadangTripleChart(
+        'cLdgNegeri', byNeg.map(x => x[0]),
+        byNeg.map(x => x[1].bil),
+        byNeg.map(x => x[1].luas),
+        byNeg.map(x => prodByNegeri[x[0].toUpperCase().trim()] || 0),
+        uCfgLink, '#0284c7', true
+      );
 
-      // L3. Sistem Ternakan
+      // L3. Sistem Ternakan + Pengeluaran
       const bySis = Object.entries(aggLdg(filtered, d => d.sistem)).sort((a, b) => b[1].bil - a[1].bil);
-      buildLadangComboChart('cLdgSistem', bySis.map(x => x[0]), bySis.map(x => x[1].bil), bySis.map(x => x[1].luas), '#4f46e5', false);
+      buildLadangTripleChart(
+        'cLdgSistem', bySis.map(x => x[0]),
+        bySis.map(x => x[1].bil),
+        bySis.map(x => x[1].luas),
+        bySis.map(x => prodBySistem[x[0].toUpperCase().trim()] || 0),
+        uCfgLink, '#4f46e5', false
+      );
 
-      // L4. Jenis Akuakultur
+      // L4. Jenis Akuakultur + Pengeluaran
       const byAk = Object.entries(aggLdg(filtered, d => d.jenisAkua)).sort((a, b) => b[1].bil - a[1].bil);
-      buildLadangComboChart('cLdgAkua', byAk.map(x => x[0]), byAk.map(x => x[1].bil), byAk.map(x => x[1].luas), '#059669', false);
+      buildLadangTripleChart(
+        'cLdgAkua', byAk.map(x => x[0]),
+        byAk.map(x => x[1].bil),
+        byAk.map(x => x[1].luas),
+        byAk.map(x => prodByAkua[x[0].toUpperCase().trim()] || 0),
+        uCfgLink, '#059669', false
+      );
 
       // L5. Carta Donut: Jenis Pemilik & Kaum
       const byPemilik = {};
@@ -4303,16 +4348,65 @@
       renderLadangDirTable();
     }
 
-    function buildLadangComboChart(canvasId, labels, bilArr, luasArr, barColor, showFlags) {
+    function toggleLadangTripleDataset(canvasId, datasetIdx, badgeEl) {
+      const chart = chartInstances[canvasId];
+      if (!chart) return;
+      const isVisible = chart.isDatasetVisible(datasetIdx);
+      chart.setDatasetVisibility(datasetIdx, !isVisible);
+
+      // Peta indeks dataset ke ID paksi Y: 0 -> y2 (Pengeluaran), 1 -> y1 (Keluasan), 2 -> y (Bil. Ladang)
+      const axisMap = { 0: 'y2', 1: 'y1', 2: 'y' };
+      const axisId = axisMap[datasetIdx];
+      if (axisId && chart.options.scales && chart.options.scales[axisId]) {
+        chart.options.scales[axisId].display = !isVisible;
+      }
+
+      chart.update();
+      if (badgeEl) badgeEl.classList.toggle('hidden-series', isVisible);
+    }
+
+    function buildLadangTripleChart(canvasId, labels, bilArr, luasArr, pengArr, uCfg, barColor, showFlags) {
       const isMobile = window.innerWidth < 1024;
-      const dlSize   = isMobile ? 7.5 : 10;
-      const tickSize = isMobile ? 8.5 : 11;
+      const dlSize   = isMobile ? 7 : 9.5;
+      const tickSize = isMobile ? 8 : 10.5;
+      const decPeng  = (uCfg.unit === 'Ekor' || uCfg.unit === 'Ikat') ? 0 : 2;
 
       buildChart(canvasId, {
         _showStateFlags: showFlags,
         data: {
           labels: labels,
           datasets: [
+            {
+              type: 'line',
+              label: `Pengeluaran (${uCfg.unit})`,
+              data: pengArr.map(v => Number(v.toFixed(decPeng))),
+              borderColor: '#7c3aed',
+              backgroundColor: '#7c3aed',
+              pointBackgroundColor: '#ffffff',
+              pointBorderColor: '#7c3aed',
+              pointStyle: 'rectRot',
+              pointRadius: isMobile ? 3 : 4.5,
+              borderDash: [5, 3],
+              yAxisID: 'y2',
+              tension: 0.3,
+              borderWidth: isMobile ? 2 : 2.8,
+              order: 0,
+              datalabels: {
+                display: !isMobile,
+                align: 'top',
+                anchor: 'end',
+                offset: 12,
+                clamp: true,
+                color: '#5b21b6',
+                backgroundColor: 'rgba(243,232,255,0.92)',
+                borderColor: '#d8b4fe',
+                borderWidth: 1,
+                borderRadius: 3,
+                padding: { top: 1, bottom: 1, left: 3, right: 3 },
+                font: { weight: 'bold', size: dlSize },
+                formatter: v => v > 0 ? formatCompactLabel(v, false) : ''
+              }
+            },
             {
               type: 'line',
               label: 'Keluasan (Ha)',
@@ -4324,16 +4418,16 @@
               pointRadius: isMobile ? 2.5 : 4,
               yAxisID: 'y1',
               tension: 0.3,
-              borderWidth: isMobile ? 2 : 3,
-              order: 0,
+              borderWidth: isMobile ? 2 : 2.8,
+              order: 1,
               datalabels: {
                 display: true,
-                align: 'top',
-                anchor: 'end',
-                offset: 4,
+                align: 'bottom',
+                anchor: 'start',
+                offset: 3,
                 clamp: true,
                 color: '#be123c',
-                backgroundColor: 'rgba(255,255,255,0.9)',
+                backgroundColor: 'rgba(255,255,255,0.92)',
                 borderColor: '#fecdd3',
                 borderWidth: 1,
                 borderRadius: 3,
@@ -4349,12 +4443,12 @@
               backgroundColor: barColor,
               yAxisID: 'y',
               borderRadius: isMobile ? 4 : 6,
-              order: 1,
+              order: 2,
               datalabels: {
                 display: true,
                 anchor: 'end',
                 align: 'start',
-                offset: 3,
+                offset: 2,
                 clamp: true,
                 color: '#ffffff',
                 textShadowColor: 'rgba(0,0,0,0.65)',
@@ -4368,15 +4462,17 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          layout: { padding: { top: isMobile ? 18 : 26, bottom: showFlags ? (isMobile ? 16 : 30) : 4 } },
+          layout: { padding: { top: isMobile ? 20 : 32, bottom: showFlags ? (isMobile ? 16 : 30) : 4 } },
           interaction: { mode: 'index', intersect: false },
           plugins: {
             legend: { display: false },
             tooltip: {
               callbacks: {
-                label: ctx => ctx.dataset.yAxisID === 'y1'
-                  ? ` Keluasan: ${fmtNum(ctx.raw, 2)} Ha`
-                  : ` Bilangan Ladang: ${fmtNum(ctx.raw, 0)}`
+                label: ctx => {
+                  if (ctx.dataset.yAxisID === 'y2') return ` Pengeluaran: ${fmtNum(ctx.raw, decPeng)} ${uCfg.unit}`;
+                  if (ctx.dataset.yAxisID === 'y1') return ` Keluasan: ${fmtNum(ctx.raw, 2)} Ha`;
+                  return ` Bilangan Ladang: ${fmtNum(ctx.raw, 0)}`;
+                }
               }
             }
           },
@@ -4385,15 +4481,22 @@
             y: {
               position: 'left',
               grace: '15%',
-              title: { display: !isMobile, text: 'Bilangan Ladang', font: { size: 11 } },
+              title: { display: !isMobile, text: 'Bilangan Ladang', color: barColor, font: { weight: 'bold', size: 10.5 } },
               ticks: { font: { size: tickSize }, callback: v => formatCompactLabel(v, false) }
             },
             y1: {
               position: 'right',
               grace: '18%',
               grid: { drawOnChartArea: false },
-              title: { display: !isMobile, text: 'Keluasan (Ha)', font: { size: 11 } },
-              ticks: { font: { size: tickSize }, callback: v => formatCompactLabel(v, false) }
+              title: { display: !isMobile, text: 'Keluasan (Ha)', color: '#e11d48', font: { weight: 'bold', size: 10.5 } },
+              ticks: { color: '#be123c', font: { size: tickSize }, callback: v => formatCompactLabel(v, false) }
+            },
+            y2: {
+              position: 'right',
+              grace: '22%',
+              grid: { drawOnChartArea: false },
+              title: { display: !isMobile, text: `Pengeluaran (${uCfg.unit})`, color: '#7c3aed', font: { weight: 'bold', size: 10.5 } },
+              ticks: { color: '#6d28d9', font: { size: tickSize }, callback: v => formatCompactLabel(v, false) }
             }
           }
         }
