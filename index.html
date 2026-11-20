@@ -318,6 +318,9 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 6px;
     }
+    .kpi-grid.cols-4 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
     .kpi-box {
       padding: 9px 7px;
       border-radius: 12px;
@@ -855,6 +858,7 @@
       .active-summary-pill { font-size: 0.74rem; padding: 3px 10px; max-width: none; }
       .btn-default, .btn-reset, .btn-collapse { padding: 6px 12px; font-size: 0.76rem; }
       .kpi-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; }
+      .kpi-grid.cols-4 { grid-template-columns: repeat(4, 1fr); gap: 14px; }
       .kpi-box { flex-direction: row; align-items: center; padding: 18px 20px; border-radius: 16px; }
       .kpi-icon-clean { font-size: 3.1rem; }
       .kpi-label { font-size: 0.76rem; }
@@ -1288,81 +1292,101 @@
     <!-- =========================================================== -->
     <!-- MODUL UTAMA 3: DATA LADANG AKUAKULTUR (TERBUKA UMUM)        -->
     <!-- =========================================================== -->
-    <div id="moduleLadangWrap" style="display:none; flex-direction:column; gap:14px;">
-      <div id="ladangLoader" class="chart-section" style="text-align:center; padding:32px;">
-        <div class="spinner" style="margin:0 auto 12px auto;"></div>
-        <div style="font-weight:700; color:#0f766e;">Memuatkan Data Senarai Ladang Akuakultur...</div>
+    <div id="moduleLadangWrap" style="display:none; flex-direction:column; gap:10px;">
+      <div id="ladangLoader" class="chart-section accent-teal" style="text-align:center; padding:36px 20px; display:flex; flex-direction:column; align-items:center; gap:14px;">
+        <div class="loader-bar-track">
+          <div class="loader-bar-fill"></div>
+        </div>
+        <div style="font-weight:700; color:#0f766e;">Memuatkan Data Senarai Ladang Akuakultur (5 Tahun)...</div>
       </div>
 
-      <div id="ladangContent" style="display:none; flex-direction:column; gap:14px;">
+      <div id="ladangContent" style="display:none; flex-direction:column; gap:10px;">
         <!-- Panel Penapis Data Ladang -->
-        <div class="filter-bar" style="border-left:5px solid #0d9488;">
-          <div class="filter-group">
-            <label>Tahun</label>
-            <select id="ldgFilterTahun" onchange="onLadangFilterChange()"><option value="ALL">Semua Tahun</option></select>
+        <div class="filter-card" style="border-color:#0d9488;">
+          <div class="filter-header" style="margin-bottom:6px;">
+            <div class="filter-title-wrap">
+              <span class="f-title" style="color:#0f766e;">Penapis Data Ladang</span>
+            </div>
+            <div class="filter-btn-group">
+              <button type="button" class="btn-default" onclick="syncLadangToPengeluaran()" title="Buka modul Data Pengeluaran menggunakan penapis Tahun, Negeri, Daerah, Jenis Akua & Sistem Ternakan semasa">
+                🔗 Semak Pengeluaran Berkaitan
+              </button>
+              <button type="button" class="btn-reset" onclick="resetLadangFilters()">↺ Reset Penapis Ladang</button>
+            </div>
           </div>
-          <div class="filter-group">
-            <label>Negeri</label>
-            <select id="ldgFilterNegeri" onchange="onLadangNegeriChange()"><option value="ALL">Semua Negeri</option></select>
-          </div>
-          <div class="filter-group">
-            <label>Daerah</label>
-            <select id="ldgFilterDaerah" onchange="onLadangFilterChange()"><option value="ALL">Semua Daerah</option></select>
-          </div>
-          <div class="filter-group">
-            <label>Jenis Akua</label>
-            <select id="ldgFilterJenisAkua" onchange="onLadangFilterChange()"><option value="ALL">Semua Jenis Akua</option></select>
-          </div>
-          <div class="filter-group">
-            <label>Sistem Ternakan</label>
-            <select id="ldgFilterSistem" onchange="onLadangFilterChange()"><option value="ALL">Semua Sistem</option></select>
-          </div>
-          <div class="filter-group">
-            <label>Parlimen</label>
-            <select id="ldgFilterParlimen" onchange="onLadangFilterChange()"><option value="ALL">Semua Parlimen</option></select>
-          </div>
-          <div class="filter-group">
-            <label>DUN</label>
-            <select id="ldgFilterDun" onchange="onLadangFilterChange()"><option value="ALL">Semua DUN</option></select>
-          </div>
-          <div class="filter-group">
-            <label>Status Ladang</label>
-            <select id="ldgFilterStatus" onchange="onLadangFilterChange()"><option value="ALL">Semua Status</option></select>
-          </div>
-          <div class="filter-group">
-            <label>Status SKL</label>
-            <select id="ldgFilterSkl" onchange="onLadangFilterChange()"><option value="ALL">Semua SKL</option></select>
-          </div>
-          <div class="filter-actions" style="display:flex; gap:6px; align-items:flex-end; flex-wrap:wrap;">
-            <button type="button" class="btn-reset" onclick="resetLadangFilters()">↺ Reset</button>
-            <button type="button" onclick="syncLadangToPengeluaran()" title="Buka modul Data Pengeluaran menggunakan penapis Tahun, Negeri, Daerah, Jenis Akua & Sistem Ternakan semasa"
-              style="background:#0369a1; color:#fff; border:none; padding:7px 12px; border-radius:8px; font-weight:700; font-size:0.78rem; cursor:pointer;">
-              🔗 Semak Pengeluaran Berkaitan
-            </button>
+          <div class="filter-grid">
+            <div class="filter-item">
+              <label>Tahun</label>
+              <select id="ldgFilterTahun" class="ms-btn" onchange="onLadangFilterChange()"><option value="ALL">Semua Tahun</option></select>
+            </div>
+            <div class="filter-item">
+              <label>Negeri</label>
+              <select id="ldgFilterNegeri" class="ms-btn" onchange="onLadangNegeriChange()"><option value="ALL">Semua Negeri</option></select>
+            </div>
+            <div class="filter-item">
+              <label>Daerah</label>
+              <select id="ldgFilterDaerah" class="ms-btn" onchange="onLadangFilterChange()"><option value="ALL">Semua Daerah</option></select>
+            </div>
+            <div class="filter-item">
+              <label>Jenis Akua</label>
+              <select id="ldgFilterJenisAkua" class="ms-btn" onchange="onLadangFilterChange()"><option value="ALL">Semua Jenis Akua</option></select>
+            </div>
+            <div class="filter-item">
+              <label>Sistem Ternakan</label>
+              <select id="ldgFilterSistem" class="ms-btn" onchange="onLadangFilterChange()"><option value="ALL">Semua Sistem</option></select>
+            </div>
+            <div class="filter-item">
+              <label>Parlimen</label>
+              <select id="ldgFilterParlimen" class="ms-btn" onchange="onLadangFilterChange()"><option value="ALL">Semua Parlimen</option></select>
+            </div>
+            <div class="filter-item">
+              <label>DUN</label>
+              <select id="ldgFilterDun" class="ms-btn" onchange="onLadangFilterChange()"><option value="ALL">Semua DUN</option></select>
+            </div>
+            <div class="filter-item">
+              <label>Status Ladang</label>
+              <select id="ldgFilterStatus" class="ms-btn" onchange="onLadangFilterChange()"><option value="ALL">Semua Status</option></select>
+            </div>
+            <div class="filter-item">
+              <label>Status SKL</label>
+              <select id="ldgFilterSkl" class="ms-btn" onchange="onLadangFilterChange()"><option value="ALL">Semua SKL</option></select>
+            </div>
           </div>
         </div>
 
-        <!-- Kad KPI Utama & Penghubungan Silang Data Pengeluaran -->
-        <div class="kpi-grid">
-          <div class="kpi-card" style="border-top:4px solid #0d9488;">
-            <div class="kpi-label">Jumlah Ladang / Pengusaha Unik</div>
-            <div class="kpi-val" id="kpiLdgTotal">0</div>
-            <div class="kpi-sub" id="kpiLdgAktifSub">0 Aktif • 0 Berlesen SKL</div>
+        <!-- 4 Kad KPI Utama & Penghubungan Silang Data Pengeluaran -->
+        <div class="kpi-grid cols-4">
+          <div class="kpi-box teal">
+            <div>
+              <div class="kpi-label">Jumlah Ladang / Pengusaha Unik</div>
+              <div class="kpi-num" id="kpiLdgTotal">0</div>
+              <div class="kpi-unit" id="kpiLdgAktifSub">0 Aktif • 0 Berlesen SKL</div>
+            </div>
+            <div class="kpi-icon-clean">🏞️</div>
           </div>
-          <div class="kpi-card" style="border-top:4px solid #0284c7;">
-            <div class="kpi-label">Jumlah Luas Kolam / Tapak (Hektar)</div>
-            <div class="kpi-val" id="kpiLdgHektar">0.00 Ha</div>
-            <div class="kpi-sub" id="kpiLdgUnitLainSub">Unit Lain: -</div>
+          <div class="kpi-box blue">
+            <div>
+              <div class="kpi-label">Jumlah Luas Kolam / Tapak</div>
+              <div class="kpi-num" id="kpiLdgHektar">0.00 Ha</div>
+              <div class="kpi-unit" id="kpiLdgUnitLainSub">Unit Lain: -</div>
+            </div>
+            <div class="kpi-icon-clean">📐</div>
           </div>
-          <div class="kpi-card" style="border-top:4px solid #7c3aed;">
-            <div class="kpi-label">Pengeluaran Berkaitan (Padanan 5 Dimensi)</div>
-            <div class="kpi-val" id="kpiLdgLinkPeng">0.00 Tan</div>
-            <div class="kpi-sub">Padanan Tahun, Negeri, Daerah, Akua &amp; Sistem</div>
+          <div class="kpi-box" style="background: linear-gradient(135deg, #6d28d9 0%, #4f46e5 100%);">
+            <div>
+              <div class="kpi-label">Pengeluaran Berkaitan (5 Dimensi)</div>
+              <div class="kpi-num" id="kpiLdgLinkPeng">0.00 Tan</div>
+              <div class="kpi-unit">Padanan Tahun, Negeri, Daerah, Akua &amp; Sistem</div>
+            </div>
+            <div class="kpi-icon-clean">⚖️</div>
           </div>
-          <div class="kpi-card" style="border-top:4px solid #e11d48;">
-            <div class="kpi-label">Nilai Borong Berkaitan (RM)</div>
-            <div class="kpi-val" id="kpiLdgLinkRm">RM 0</div>
-            <div class="kpi-sub" id="kpiLdgLinkProdSub">Purata Hasil/Ladang: -</div>
+          <div class="kpi-box amber">
+            <div>
+              <div class="kpi-label">Nilai Borong Berkaitan (RM)</div>
+              <div class="kpi-num" id="kpiLdgLinkRm">RM 0</div>
+              <div class="kpi-unit" id="kpiLdgLinkProdSub">Purata Hasil/Ladang: -</div>
+            </div>
+            <div class="kpi-icon-clean">💰</div>
           </div>
         </div>
 
@@ -1840,9 +1864,9 @@
         if (!flagImageCache[key]) {
           const img = new Image();
           img.onload = () => {
-            if (chartInstances['cGeoCombined']) {
-              chartInstances['cGeoCombined'].draw();
-            }
+            ['cGeoCombined', 'cBntNegeri', 'cLdgNegeri'].forEach(cid => {
+              if (chartInstances[cid]) chartInstances[cid].draw();
+            });
           };
           img.src = STATE_FLAGS[key];
           flagImageCache[key] = img;
@@ -3813,31 +3837,29 @@
       renderLadangModule();
     }
 
-    // Lompat terus ke Data Pengeluaran dengan menyalin 5 penapis sepunya
+    // Lompat terus ke Data Pengeluaran dengan menyalin 5 penapis sepunya ke dalam selectedFilters
     function syncLadangToPengeluaran() {
-      const fTahun  = document.getElementById('ldgFilterTahun').value;
-      const fNegeri = document.getElementById('ldgFilterNegeri').value;
-      const fDaerah = document.getElementById('ldgFilterDaerah').value;
-      const fAkua   = document.getElementById('ldgFilterJenisAkua').value;
-      const fSistem = document.getElementById('ldgFilterSistem').value;
+      const pairs = [
+        { key: 'tahun',     val: document.getElementById('ldgFilterTahun').value },
+        { key: 'negeri',    val: document.getElementById('ldgFilterNegeri').value },
+        { key: 'daerah',    val: document.getElementById('ldgFilterDaerah').value },
+        { key: 'jenisAkua', val: document.getElementById('ldgFilterJenisAkua').value },
+        { key: 'sTernakan', val: document.getElementById('ldgFilterSistem').value }
+      ];
 
-      const trySet = (elId, val) => {
-        const el = document.getElementById(elId);
-        if (!el) return;
-        if (val === 'ALL') { el.value = 'ALL'; return; }
-        const match = Array.from(el.options).find(o => o.value.toUpperCase() === val.toUpperCase());
-        el.value = match ? match.value : 'ALL';
-      };
+      Object.keys(selectedFilters).forEach(k => selectedFilters[k].clear());
 
-      trySet('filterTahun', fTahun);
-      trySet('filterNegeri', fNegeri);
-      if (typeof onNegeriFilterChange === 'function') onNegeriFilterChange();
-      trySet('filterDaerah', fDaerah);
-      trySet('filterJenisAkua', fAkua);
-      trySet('filterSistem', fSistem);
+      pairs.forEach(({ key, val }) => {
+        if (!val || val === 'ALL') return;
+        const upVal = val.toUpperCase().trim();
+        const matches = [...new Set(rawData.map(d => d[key]).filter(Boolean))]
+          .filter(item => String(item).toUpperCase().trim() === upVal);
+        matches.forEach(m => selectedFilters[key].add(m));
+      });
 
+      refreshCascadingOptions();
+      updateDashboard();
       switchMainModule('pengeluaran');
-      if (typeof applyFilters === 'function') applyFilters();
     }
 
     function isHektarUnit(u) {
@@ -3986,20 +4008,36 @@
         byPemilik[lbl] = (byPemilik[lbl] || 0) + d.bil;
       });
       const pemEntries = Object.entries(byPemilik).sort((a, b) => b[1] - a[1]).slice(0, 8);
+      const pemTotal   = pemEntries.reduce((s, x) => s + x[1], 0);
+      const isMobLdg   = window.innerWidth < 1024;
       buildChart('cLdgPemilik', {
         type: 'doughnut',
         data: {
           labels: pemEntries.map(x => x[0]),
           datasets: [{
             data: pemEntries.map(x => x[1]),
-            backgroundColor: pemEntries.map((_, i) => generateDistinctColor(i))
+            backgroundColor: pemEntries.map((_, i) => generateDistinctColor(i)),
+            borderWidth: 2,
+            borderColor: '#ffffff'
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 } } }
+            legend: {
+              position: isMobLdg ? 'bottom' : 'right',
+              labels: { boxWidth: 11, padding: 8, font: { size: isMobLdg ? 9.5 : 11 } }
+            },
+            datalabels: {
+              color: '#ffffff',
+              font: { weight: 'bold', size: 10 },
+              formatter: v => {
+                if (!pemTotal) return '';
+                const pct = (v / pemTotal) * 100;
+                return pct >= 5 ? pct.toFixed(1) + '%' : '';
+              }
+            }
           }
         }
       });
@@ -4019,15 +4057,28 @@
             label: 'Bilangan Ladang',
             data: tnhEntries.map(x => x[1]),
             backgroundColor: '#7c3aed',
-            borderRadius: 6
+            borderRadius: 6,
+            datalabels: {
+              display: true,
+              anchor: 'end',
+              align: 'right',
+              offset: 4,
+              color: '#0f172a',
+              font: { weight: 'bold', size: 10 },
+              formatter: v => fmtNum(v, 0)
+            }
           }]
         },
         options: {
           indexAxis: 'y',
           responsive: true,
           maintainAspectRatio: false,
+          layout: { padding: { right: 32 } },
           plugins: { legend: { display: false } },
-          scales: { x: { grace: '12%' } }
+          scales: {
+            x: { grace: '15%', ticks: { font: { size: isMobLdg ? 8.5 : 11 } } },
+            y: { ticks: { font: { size: isMobLdg ? 9 : 11 } } }
+          }
         }
       });
 
