@@ -2505,16 +2505,17 @@
     }
 
     function renderAll10YearLines() {
-      const dataNoYear = getFilteredData(false);
-      const uCfg = detectUnitConfig(dataNoYear);
-      const metric = document.getElementById('mlMetricSelect').value;
+      const dataNoYear   = getFilteredData(false);
+      const dataWithYear = getFilteredData(true);
+      const uCfg         = detectUnitConfig(dataWithYear);
+      const metric       = document.getElementById('mlMetricSelect').value;
 
       const dims = ['negeri', 'jenisAkua', 'sTernakan', 'spesis', 'daerah'];
       dims.forEach(dim => {
         renderSingleDimension10Y(`cLine10Y_${dim}`, dim, dataNoYear, uCfg, metric);
       });
 
-      renderMonthYearComparisonChart('cLine10Y_monthYear', dataNoYear, uCfg, metric);
+      renderMonthYearComparisonChart('cLine10Y_monthYear', dataWithYear, uCfg, metric);
     }
 
     function renderMonthYearComparisonChart(canvasId, dataNoYear, uCfg, metric) {
