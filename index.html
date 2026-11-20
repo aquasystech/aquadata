@@ -1143,7 +1143,23 @@
             <canvas id="cLine10Y_daerah"></canvas>
           </div>
         </div>
+
+        <div class="chart-section accent-purple">
+          <div class="chart-top">
+            <h2 class="chart-title">9F. Perbandingan Bulanan Antara Tahun (Jan–Dis, 2017–2026)</h2>
+            <div class="metric-badges">
+              <span class="badge purple">Paksi-X: Bulan (Jan–Dis)</span>
+              <span class="badge">Setiap Garis: Tahun (Klik Legenda untuk Sorok/Papar)</span>
+            </div>
+          </div>
+          <div class="canvas-container tall">
+            <canvas id="cLine10Y_monthYear"></canvas>
+          </div>
+        </div>
       </div>
+
+      <!-- ========================================================= -->
+      <!-- TAB 3: ANALISIS SPESIES & SISTEM TERNAKAN                 -->
 
       <!-- ========================================================= -->
       <!-- TAB 3: ANALISIS SPESIES & SISTEM TERNAKAN                 -->
@@ -2496,6 +2512,107 @@
       const dims = ['negeri', 'jenisAkua', 'sTernakan', 'spesis', 'daerah'];
       dims.forEach(dim => {
         renderSingleDimension10Y(`cLine10Y_${dim}`, dim, dataNoYear, uCfg, metric);
+      });
+
+      renderMonthYearComparisonChart('cLine10Y_monthYear', dataNoYear, uCfg, metric);
+    }
+
+    function renderMonthYearComparisonChart(canvasId, dataNoYear, uCfg, metric) {
+      const allYears = [...new Set(dataNoYear.map(d => String(d.tahun)).filter(Boolean))].sort((a, b) => b.localeCompare(a));
+      const monthYearMap = {};
+
+      dataNoYear.forEach(d => {
+        const y = String(d.tahun);
+        const m = Number(d.month);
+        if (!y || m < 1 || m > 12) return;
+        const key = `${y}|||${m}`;
+        if (!monthYearMap[key]) monthYearMap[key] = { peng: 0, rm: 0 };
+        monthYearMap[key].peng += d.pengeluaran;
+        monthYearMap[key].rm   += d.nilaiBorong;
+      });
+
+      const getMetricVal = (obj) => {
+        if (!obj) return 0;
+        if (metric === 'rm')  return obj.rm;
+        if (metric === 'avg') return obj.peng > 0 ? (obj.rm / (obj.peng * uCfg.kgFactor)) : 0;
+        return obj.peng;
+      };
+
+      const isMobile = window.innerWidth < 1024;
+      const monthLabels = BULAN.slice(1); // Jan hingga Dis
+
+      const datasets = allYears.map((yr, idx) => {
+        const color = generateDistinctColor(idx);
+        const isLatestYear = (idx === 0);
+        return {
+          label: yr,
+          data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(m => {
+            const val = getMetricVal(monthYearMap[`${yr}|||${m}`]);
+            return val > 0 ? Number(val.toFixed(2)) : null;
+          }),
+          borderColor: color,
+          backgroundColor: color,
+          pointBackgroundColor: isLatestYear ? color : '#ffffff',
+          pointBorderColor: color,
+          pointBorderWidth: isLatestYear ? 2.4 : 1.8,
+          pointRadius: isLatestYear ? (isMobile ? 3.5 : 5.2) : (isMobile ? 2.5 : 3.8),
+          pointHoverRadius: isMobile ? 5.5 : 7,
+          borderWidth: isLatestYear ? (isMobile ? 2.8 : 3.6) : (isMobile ? 1.8 : 2.3),
+          tension: 0.25,
+          spanGaps: true,
+          datalabels: { display: false }
+        };
+      });
+
+      const yAxisTitle = metric === 'rm'
+        ? 'Nilai Borong (RM)'
+        : (metric === 'avg' ? `Purata Harga (${uCfg.priceUnit})` : `Pengeluaran (${uCfg.unit})`);
+
+      buildChart(canvasId, {
+        type: 'line',
+        data: { labels: monthLabels, datasets: datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                usePointStyle: true,
+                boxWidth: isMobile ? 8 : 12,
+                padding: isMobile ? 6 : 10,
+                font: { weight: 'bold', size: isMobile ? 9 : 11 }
+              }
+            },
+            tooltip: {
+              itemSort: (a, b) => Number(b.dataset.label) - Number(a.dataset.label),
+              callbacks: {
+                label: (ctx) => {
+                  const v = ctx.raw;
+                  if (v === null || v === undefined) return ` ${ctx.dataset.label}: Tiada rekod`;
+                  if (metric === 'rm')  return ` ${ctx.dataset.label}: ${formatRMShort(v)}`;
+                  if (metric === 'avg') return ` ${ctx.dataset.label}: RM ${fmtNum(v, 2)} (${uCfg.priceUnit})`;
+                  return ` ${ctx.dataset.label}: ${fmtNum(v, 2)} ${uCfg.unit}`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: { ticks: { font: { weight: 'bold', size: isMobile ? 9 : 11 } } },
+            y: {
+              grace: '10%',
+              title: { display: !isMobile, text: yAxisTitle, font: { weight: 'bold', size: 11 } },
+              ticks: {
+                font: { size: isMobile ? 8.5 : 11 },
+                callback: v => metric === 'rm'
+                  ? formatCompactLabel(v, true)
+                  : (metric === 'avg' ? 'RM' + v : formatCompactLabel(v, false))
+              }
+            }
+          }
+        }
       });
     }
 
