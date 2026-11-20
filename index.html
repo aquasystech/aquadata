@@ -1356,57 +1356,37 @@
       </div>
 
       <div id="ladangContent" style="display:none; flex-direction:column; gap:10px;">
-        <!-- Panel Penapis Data Ladang -->
+        <!-- Panel Penapis Data Ladang (Multi-Select & Tetapan Lalai) -->
         <div class="filter-card" style="border-color:#0d9488;">
           <div class="filter-header" style="margin-bottom:6px;">
             <div class="filter-title-wrap">
               <span class="f-title" style="color:#0f766e;">Penapis Data Ladang</span>
+              <span class="active-summary-pill" id="ldgActiveFilterBadge">Memuatkan penapis...</span>
             </div>
             <div class="filter-btn-group">
-              <button type="button" class="btn-default" onclick="syncLadangToPengeluaran()" title="Buka modul Data Pengeluaran menggunakan penapis Tahun, Negeri, Daerah, Jenis Akua & Sistem Ternakan semasa">
-                🔗 Semak Pengeluaran Berkaitan
+              <button type="button" class="btn-default" onclick="applyLadangDefaultPreset()">Tetapan Lalai</button>
+              <button type="button" class="btn-default" style="background:#0d9488;" onclick="syncLadangToPengeluaran()" title="Buka modul Data Pengeluaran menggunakan penapis Tahun, Negeri, Daerah, Jenis Akua & Sistem Ternakan semasa">
+                🔗 Semak Pengeluaran
               </button>
-              <button type="button" class="btn-reset" onclick="resetLadangFilters()">↺ Reset Penapis Ladang</button>
+              <button type="button" class="btn-reset" onclick="resetLadangFilters()">Reset Semua</button>
             </div>
           </div>
-          <div class="filter-grid">
-            <div class="filter-item">
-              <label>Tahun</label>
-              <select id="ldgFilterTahun" class="ms-btn" onchange="onLadangFilterChange()"><option value="ALL">Semua Tahun</option></select>
-            </div>
-            <div class="filter-item">
-              <label>Negeri</label>
-              <select id="ldgFilterNegeri" class="ms-btn" onchange="onLadangNegeriChange()"><option value="ALL">Semua Negeri</option></select>
-            </div>
-            <div class="filter-item">
-              <label>Daerah</label>
-              <select id="ldgFilterDaerah" class="ms-btn" onchange="onLadangFilterChange()"><option value="ALL">Semua Daerah</option></select>
-            </div>
-            <div class="filter-item">
-              <label>Jenis Akua</label>
-              <select id="ldgFilterJenisAkua" class="ms-btn" onchange="onLadangFilterChange()"><option value="ALL">Semua Jenis Akua</option></select>
-            </div>
-            <div class="filter-item">
-              <label>Sistem Ternakan</label>
-              <select id="ldgFilterSistem" class="ms-btn" onchange="onLadangFilterChange()"><option value="ALL">Semua Sistem</option></select>
-            </div>
-            <div class="filter-item">
-              <label>Parlimen</label>
-              <select id="ldgFilterParlimen" class="ms-btn" onchange="onLadangFilterChange()"><option value="ALL">Semua Parlimen</option></select>
-            </div>
-            <div class="filter-item">
-              <label>DUN</label>
-              <select id="ldgFilterDun" class="ms-btn" onchange="onLadangFilterChange()"><option value="ALL">Semua DUN</option></select>
-            </div>
-            <div class="filter-item">
-              <label>Status Ladang</label>
-              <select id="ldgFilterStatus" class="ms-btn" onchange="onLadangFilterChange()"><option value="ALL">Semua Status</option></select>
-            </div>
-            <div class="filter-item">
-              <label>Status SKL</label>
-              <select id="ldgFilterSkl" class="ms-btn" onchange="onLadangFilterChange()"><option value="ALL">Semua SKL</option></select>
-            </div>
+          <div class="filter-grid" id="ldgFilterGridBody">
+            <div class="filter-item" id="ldg-wrap-tahun"></div>
+            <div class="filter-item" id="ldg-wrap-negeri"></div>
+            <div class="filter-item" id="ldg-wrap-daerah"></div>
+            <div class="filter-item" id="ldg-wrap-jenisAkua"></div>
+            <div class="filter-item" id="ldg-wrap-sistem"></div>
+            <div class="filter-item" id="ldg-wrap-parlimen"></div>
+            <div class="filter-item" id="ldg-wrap-dun"></div>
+            <div class="filter-item" id="ldg-wrap-status"></div>
+            <div class="filter-item" id="ldg-wrap-skl"></div>
           </div>
+        </div>
+
+        <!-- Notis Unit Campuran Ladang-Pengeluaran -->
+        <div id="ldgUnitNotice" class="unit-notice">
+          Nota: Anda sedang menggabungkan Jenis Akua dengan unit pengeluaran berbeza (Tan Metrik, Ekor, atau Ikat). Sila tapis Jenis Akua khusus untuk bacaan unit pengeluaran yang seragam.
         </div>
 
         <!-- 4 Kad KPI Utama & Penghubungan Silang Data Pengeluaran -->
@@ -1430,8 +1410,8 @@
           <div class="kpi-box" style="background: linear-gradient(135deg, #6d28d9 0%, #4f46e5 100%);">
             <div>
               <div class="kpi-label">Pengeluaran Berkaitan (5 Dimensi)</div>
-              <div class="kpi-num" id="kpiLdgLinkPeng">0.00 Tan</div>
-              <div class="kpi-unit">Padanan Tahun, Negeri, Daerah, Akua &amp; Sistem</div>
+              <div class="kpi-num" id="kpiLdgLinkPeng">0.00</div>
+              <div class="kpi-unit" id="kpiLdgLinkUnitLabel">Tan Metrik</div>
             </div>
             <div class="kpi-icon-clean">⚖️</div>
           </div>
@@ -1537,7 +1517,7 @@
                   <th onclick="sortLdgLinkTable('sistem')">Sistem Ternakan <span class="sort-icon" id="sort-ll-sistem">⇅</span></th>
                   <th class="num" onclick="sortLdgLinkTable('bil')">Bil. Ladang <span class="sort-icon" id="sort-ll-bil">▼</span></th>
                   <th class="num" onclick="sortLdgLinkTable('luas')">Luas (Ha) <span class="sort-icon" id="sort-ll-luas">⇅</span></th>
-                  <th class="num" onclick="sortLdgLinkTable('peng')">Pengeluaran (Tan) <span class="sort-icon" id="sort-ll-peng">⇅</span></th>
+                  <th class="num" onclick="sortLdgLinkTable('peng')"><span id="thLdgLinkPeng">Pengeluaran (Tan Metrik)</span> <span class="sort-icon" id="sort-ll-peng">⇅</span></th>
                   <th class="num" onclick="sortLdgLinkTable('rm')">Nilai Borong (RM) <span class="sort-icon" id="sort-ll-rm">⇅</span></th>
                 </tr>
               </thead>
@@ -3763,6 +3743,199 @@
     let ladangDirData = null;
     let isLadangLoading = false;
 
+    const LDG_FILTER_CONFIG = [
+      { key: 'tahun',     label: 'Tahun',           allText: 'Semua Tahun' },
+      { key: 'negeri',    label: 'Negeri',          allText: 'Semua Negeri' },
+      { key: 'daerah',    label: 'Daerah',          allText: 'Semua Daerah' },
+      { key: 'jenisAkua', label: 'Jenis Akua',      allText: 'Semua Jenis Akua' },
+      { key: 'sistem',    label: 'Sistem Ternakan', allText: 'Semua Sistem' },
+      { key: 'parlimen',  label: 'Parlimen',        allText: 'Semua Parlimen' },
+      { key: 'dun',       label: 'DUN',             allText: 'Semua DUN' },
+      { key: 'status',    label: 'Status Ladang',   allText: 'Semua Status' },
+      { key: 'skl',       label: 'Status SKL',      allText: 'Semua SKL' }
+    ];
+
+    const ldgSelectedFilters = {
+      tahun: new Set(),
+      negeri: new Set(),
+      daerah: new Set(),
+      jenisAkua: new Set(),
+      sistem: new Set(),
+      parlimen: new Set(),
+      dun: new Set(),
+      status: new Set(),
+      skl: new Set()
+    };
+
+    function buildLadangFilterUI() {
+      LDG_FILTER_CONFIG.forEach(cfg => {
+        const wrap = document.getElementById(`ldg-wrap-${cfg.key}`);
+        if (!wrap) return;
+        wrap.innerHTML = `
+          <label>${cfg.label}</label>
+          <div class="ms-container" id="ldg-ms-${cfg.key}">
+            <button type="button" class="ms-btn" onclick="toggleLadangDropdown('${cfg.key}')">
+              <span class="ms-btn-text" id="ldg-btnText-${cfg.key}">${cfg.allText}</span>
+              <span>▼</span>
+            </button>
+            <div class="ms-dropdown" id="ldg-drop-${cfg.key}">
+              <input type="text" class="ms-search" placeholder="Cari ${cfg.label}..." oninput="filterLadangOptionsList('${cfg.key}', this.value)">
+              <div class="ms-actions">
+                <button type="button" onclick="selectAllLadangOptions('${cfg.key}')">Pilih Semua</button>
+                <button type="button" onclick="clearLadangOptions('${cfg.key}')">Kosongkan</button>
+              </div>
+              <div class="ms-list" id="ldg-list-${cfg.key}"></div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function toggleLadangDropdown(key) {
+      const target = document.getElementById(`ldg-drop-${key}`);
+      if (!target) return;
+      const isOpen = target.classList.contains('open');
+      document.querySelectorAll('.ms-dropdown').forEach(el => el.classList.remove('open'));
+      if (!isOpen) target.classList.add('open');
+    }
+
+    function filterLadangOptionsList(key, query) {
+      const q = query.toLowerCase();
+      document.querySelectorAll(`#ldg-list-${key} .ms-option`).forEach(label => {
+        label.style.display = label.textContent.toLowerCase().includes(q) ? 'flex' : 'none';
+      });
+    }
+
+    function selectAllLadangOptions(key) {
+      document.querySelectorAll(`#ldg-list-${key} input[type="checkbox"]`).forEach(cb => {
+        if (cb.parentElement.style.display !== 'none') {
+          cb.checked = true;
+          ldgSelectedFilters[key].add(cb.value);
+        }
+      });
+      refreshLadangCascadingOptions();
+      renderLadangModule();
+    }
+
+    function clearLadangOptions(key) {
+      ldgSelectedFilters[key].clear();
+      document.querySelectorAll(`#ldg-list-${key} input[type="checkbox"]`).forEach(cb => cb.checked = false);
+      refreshLadangCascadingOptions();
+      renderLadangModule();
+    }
+
+    // Tetapan Lalai Data Ladang: Tahun Paling Terkini + Air Tawar & Air Payau + Semua Negeri kecuali Sabah
+    function applyLadangDefaultPreset() {
+      if (!ladangAggData) return;
+      Object.keys(ldgSelectedFilters).forEach(k => ldgSelectedFilters[k].clear());
+
+      const allYears = [...new Set(ladangAggData.map(d => d.tahun).filter(v => v && v !== '-'))].sort();
+      if (allYears.length > 0) {
+        ldgSelectedFilters.tahun.add(allYears[allYears.length - 1]);
+      }
+
+      const allJenis = [...new Set(ladangAggData.map(d => d.jenisAkua).filter(v => v && v !== '-'))];
+      allJenis.forEach(j => {
+        const up = j.toUpperCase();
+        if (
+          (up.includes('AIR TAWAR') || up.includes('AIR PAYAU') || up === 'AT' || up === 'AP' || up === 'AM') &&
+          !up.includes('HIASAN') &&
+          !up.includes('HATCH') &&
+          !up.includes('TUMBUHAN')
+        ) {
+          ldgSelectedFilters.jenisAkua.add(j);
+        }
+      });
+
+      const allNegeri = [...new Set(ladangAggData.map(d => d.negeri).filter(v => v && v !== '-'))];
+      allNegeri.forEach(n => {
+        if (!n.toUpperCase().includes('SABAH')) {
+          ldgSelectedFilters.negeri.add(n);
+        }
+      });
+
+      refreshLadangCascadingOptions();
+      renderLadangModule();
+    }
+
+    function resetLadangFilters() {
+      Object.keys(ldgSelectedFilters).forEach(k => ldgSelectedFilters[k].clear());
+      refreshLadangCascadingOptions();
+      renderLadangModule();
+    }
+
+    function refreshLadangCascadingOptions() {
+      LDG_FILTER_CONFIG.forEach(cfg => {
+        const key = cfg.key;
+        const subset = ladangAggData.filter(d => {
+          if (key === 'tahun') return true;
+          if (ldgSelectedFilters.tahun.size > 0 && !ldgSelectedFilters.tahun.has(d.tahun)) return false;
+          if (key !== 'negeri' && ldgSelectedFilters.negeri.size > 0 && !ldgSelectedFilters.negeri.has(d.negeri)) return false;
+          if ((key === 'daerah' || key === 'parlimen' || key === 'dun') && ldgSelectedFilters.negeri.size > 0 && !ldgSelectedFilters.negeri.has(d.negeri)) return false;
+          if (key !== 'jenisAkua' && ldgSelectedFilters.jenisAkua.size > 0 && !ldgSelectedFilters.jenisAkua.has(d.jenisAkua)) return false;
+          return true;
+        });
+
+        let uniqueVals = [...new Set(subset.map(d => d[key]).filter(v => v && v !== '-'))];
+        if (key === 'tahun') uniqueVals.sort((a, b) => b.localeCompare(a));
+        else uniqueVals.sort();
+
+        const validSet = new Set(uniqueVals);
+        [...ldgSelectedFilters[key]].forEach(v => {
+          if (!validSet.has(v)) ldgSelectedFilters[key].delete(v);
+        });
+
+        const listEl = document.getElementById(`ldg-list-${key}`);
+        if (!listEl) return;
+        listEl.innerHTML = '';
+        uniqueVals.forEach(val => {
+          const lbl = document.createElement('label');
+          lbl.className = 'ms-option';
+          const cb = document.createElement('input');
+          cb.type = 'checkbox';
+          cb.value = val;
+          cb.checked = ldgSelectedFilters[key].has(val);
+          cb.onchange = function() {
+            if (this.checked) ldgSelectedFilters[key].add(val);
+            else ldgSelectedFilters[key].delete(val);
+            refreshLadangCascadingOptions();
+            renderLadangModule();
+          };
+          lbl.appendChild(cb);
+          lbl.appendChild(document.createTextNode(val));
+          listEl.appendChild(lbl);
+        });
+
+        const set = ldgSelectedFilters[key];
+        const btnText = document.getElementById(`ldg-btnText-${key}`);
+        const btn = btnText ? btnText.parentElement : null;
+        if (btnText && btn) {
+          if (set.size === 0) {
+            btnText.textContent = cfg.allText;
+            btn.classList.remove('active');
+          } else if (set.size === 1) {
+            btnText.textContent = [...set][0];
+            btn.classList.add('active');
+          } else {
+            btnText.textContent = `${set.size} dipilih`;
+            btn.classList.add('active');
+          }
+        }
+      });
+
+      const activeSummary = [];
+      LDG_FILTER_CONFIG.forEach(cfg => {
+        const s = ldgSelectedFilters[cfg.key];
+        if (s.size > 0) {
+          activeSummary.push(s.size <= 2 ? [...s].join(', ') : `${cfg.label} (${s.size})`);
+        }
+      });
+      const badgeEl = document.getElementById('ldgActiveFilterBadge');
+      if (badgeEl) {
+        badgeEl.innerText = activeSummary.length > 0 ? activeSummary.join(' | ') : 'Semua Data Ladang';
+      }
+    }
+
     function loadAndRenderLadang() {
       if (ladangAggData !== null) {
         document.getElementById('ladangLoader').style.display = 'none';
@@ -3773,8 +3946,9 @@
 
       if (isLadangLoading) return;
       isLadangLoading = true;
-      document.getElementById('ladangLoader').style.display = 'block';
+      document.getElementById('ladangLoader').style.display = 'flex';
       document.getElementById('ladangContent').style.display = 'none';
+      buildLadangFilterUI();
 
       fetch(APPS_SCRIPT_API_URL + '?type=ladang')
         .then(res => res.json())
@@ -3827,10 +4001,9 @@
             lng:        String(r[20] || '')
           }));
 
-          initLadangFilterOptions();
           document.getElementById('ladangLoader').style.display = 'none';
           document.getElementById('ladangContent').style.display = 'flex';
-          renderLadangModule();
+          applyLadangDefaultPreset();
         })
         .catch(() => {
           isLadangLoading = false;
@@ -3839,77 +4012,28 @@
         });
     }
 
-    function populateSelectClean(elId, valuesArr, defaultLabel) {
-      const sel = document.getElementById(elId);
-      if (!sel) return;
-      const cur = sel.value;
-      const uniq = [...new Set(valuesArr.filter(v => v && v !== '-'))].sort();
-      sel.innerHTML = `<option value="ALL">${defaultLabel}</option>` +
-        uniq.map(v => `<option value="${v}">${v}</option>`).join('');
-      if (uniq.includes(cur)) sel.value = cur;
-    }
-
-    function initLadangFilterOptions() {
-      populateSelectClean('ldgFilterTahun',     ladangAggData.map(d => d.tahun).sort((a, b) => b.localeCompare(a)), 'Semua Tahun');
-      populateSelectClean('ldgFilterNegeri',    ladangAggData.map(d => d.negeri), 'Semua Negeri');
-      populateSelectClean('ldgFilterDaerah',    ladangAggData.map(d => d.daerah), 'Semua Daerah');
-      populateSelectClean('ldgFilterJenisAkua', ladangAggData.map(d => d.jenisAkua), 'Semua Jenis Akua');
-      populateSelectClean('ldgFilterSistem',    ladangAggData.map(d => d.sistem), 'Semua Sistem');
-      populateSelectClean('ldgFilterParlimen',  ladangAggData.map(d => d.parlimen), 'Semua Parlimen');
-      populateSelectClean('ldgFilterDun',       ladangAggData.map(d => d.dun), 'Semua DUN');
-      populateSelectClean('ldgFilterStatus',    ladangAggData.map(d => d.status), 'Semua Status');
-      populateSelectClean('ldgFilterSkl',       ladangAggData.map(d => d.skl), 'Semua SKL');
-
-      // Tetapkan lalai kepada tahun terkini jika ada
-      const yrs = [...new Set(ladangAggData.map(d => d.tahun).filter(v => v && v !== '-'))].sort((a, b) => b.localeCompare(a));
-      if (yrs.length > 0) {
-        document.getElementById('ldgFilterTahun').value = yrs[0];
-      }
-    }
-
-    function onLadangNegeriChange() {
-      const neg = document.getElementById('ldgFilterNegeri').value;
-      const sub = neg === 'ALL' ? ladangAggData : ladangAggData.filter(d => d.negeri === neg);
-      populateSelectClean('ldgFilterDaerah',   sub.map(d => d.daerah), 'Semua Daerah');
-      populateSelectClean('ldgFilterParlimen', sub.map(d => d.parlimen), 'Semua Parlimen');
-      populateSelectClean('ldgFilterDun',      sub.map(d => d.dun), 'Semua DUN');
-      renderLadangModule();
-    }
-
-    function onLadangFilterChange() {
-      renderLadangModule();
-    }
-
-    function resetLadangFilters() {
-      ['ldgFilterTahun', 'ldgFilterNegeri', 'ldgFilterDaerah', 'ldgFilterJenisAkua',
-       'ldgFilterSistem', 'ldgFilterParlimen', 'ldgFilterDun', 'ldgFilterStatus', 'ldgFilterSkl'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = 'ALL';
-      });
-      populateSelectClean('ldgFilterDaerah',   ladangAggData.map(d => d.daerah), 'Semua Daerah');
-      populateSelectClean('ldgFilterParlimen', ladangAggData.map(d => d.parlimen), 'Semua Parlimen');
-      populateSelectClean('ldgFilterDun',      ladangAggData.map(d => d.dun), 'Semua DUN');
-      renderLadangModule();
-    }
-
-    // Lompat terus ke Data Pengeluaran dengan menyalin 5 penapis sepunya ke dalam selectedFilters
+    // Lompat terus ke Data Pengeluaran dengan menyalin 5 penapis sepunya berbilang pilihan
     function syncLadangToPengeluaran() {
-      const pairs = [
-        { key: 'tahun',     val: document.getElementById('ldgFilterTahun').value },
-        { key: 'negeri',    val: document.getElementById('ldgFilterNegeri').value },
-        { key: 'daerah',    val: document.getElementById('ldgFilterDaerah').value },
-        { key: 'jenisAkua', val: document.getElementById('ldgFilterJenisAkua').value },
-        { key: 'sTernakan', val: document.getElementById('ldgFilterSistem').value }
+      const mapPairs = [
+        { ldgKey: 'tahun',     prodKey: 'tahun' },
+        { ldgKey: 'negeri',    prodKey: 'negeri' },
+        { ldgKey: 'daerah',    prodKey: 'daerah' },
+        { ldgKey: 'jenisAkua', prodKey: 'jenisAkua' },
+        { ldgKey: 'sistem',    prodKey: 'sTernakan' }
       ];
 
       Object.keys(selectedFilters).forEach(k => selectedFilters[k].clear());
 
-      pairs.forEach(({ key, val }) => {
-        if (!val || val === 'ALL') return;
-        const upVal = val.toUpperCase().trim();
-        const matches = [...new Set(rawData.map(d => d[key]).filter(Boolean))]
-          .filter(item => String(item).toUpperCase().trim() === upVal);
-        matches.forEach(m => selectedFilters[key].add(m));
+      mapPairs.forEach(({ ldgKey, prodKey }) => {
+        const chosenSet = ldgSelectedFilters[ldgKey];
+        if (!chosenSet || chosenSet.size === 0) return;
+        const upTargets = new Set([...chosenSet].map(v => v.toUpperCase().trim()));
+        const prodVals = [...new Set(rawData.map(d => d[prodKey]).filter(Boolean))];
+        prodVals.forEach(item => {
+          if (upTargets.has(String(item).toUpperCase().trim())) {
+            selectedFilters[prodKey].add(item);
+          }
+        });
       });
 
       refreshCascadingOptions();
@@ -3925,30 +4049,31 @@
     function renderLadangModule() {
       if (!ladangAggData) return;
 
-      const fTahun  = document.getElementById('ldgFilterTahun').value;
-      const fNegeri = document.getElementById('ldgFilterNegeri').value;
-      const fDaerah = document.getElementById('ldgFilterDaerah').value;
-      const fAkua   = document.getElementById('ldgFilterJenisAkua').value;
-      const fSistem = document.getElementById('ldgFilterSistem').value;
-      const fParl   = document.getElementById('ldgFilterParlimen').value;
-      const fDun    = document.getElementById('ldgFilterDun').value;
-      const fStatus = document.getElementById('ldgFilterStatus').value;
-      const fSkl    = document.getElementById('ldgFilterSkl').value;
-
       const matchNoYear = (d) => {
-        if (fNegeri !== 'ALL' && d.negeri !== fNegeri) return false;
-        if (fDaerah !== 'ALL' && d.daerah !== fDaerah) return false;
-        if (fAkua   !== 'ALL' && d.jenisAkua !== fAkua) return false;
-        if (fSistem !== 'ALL' && d.sistem !== fSistem) return false;
-        if (fParl   !== 'ALL' && d.parlimen !== fParl) return false;
-        if (fDun    !== 'ALL' && d.dun !== fDun) return false;
-        if (fStatus !== 'ALL' && d.status !== fStatus) return false;
-        if (fSkl    !== 'ALL' && d.skl !== fSkl) return false;
+        if (ldgSelectedFilters.negeri.size > 0    && !ldgSelectedFilters.negeri.has(d.negeri)) return false;
+        if (ldgSelectedFilters.daerah.size > 0    && !ldgSelectedFilters.daerah.has(d.daerah)) return false;
+        if (ldgSelectedFilters.jenisAkua.size > 0 && !ldgSelectedFilters.jenisAkua.has(d.jenisAkua)) return false;
+        if (ldgSelectedFilters.sistem.size > 0    && !ldgSelectedFilters.sistem.has(d.sistem)) return false;
+        if (ldgSelectedFilters.parlimen.size > 0  && !ldgSelectedFilters.parlimen.has(d.parlimen)) return false;
+        if (ldgSelectedFilters.dun.size > 0       && !ldgSelectedFilters.dun.has(d.dun)) return false;
+        if (ldgSelectedFilters.status.size > 0    && !ldgSelectedFilters.status.has(d.status)) return false;
+        if (ldgSelectedFilters.skl.size > 0       && !ldgSelectedFilters.skl.has(d.skl)) return false;
         return true;
       };
 
       const filteredNoYear = ladangAggData.filter(matchNoYear);
-      const filtered = filteredNoYear.filter(d => fTahun === 'ALL' || d.tahun === fTahun);
+      const filtered = filteredNoYear.filter(d =>
+        ldgSelectedFilters.tahun.size === 0 || ldgSelectedFilters.tahun.has(d.tahun)
+      );
+
+      // Kesan unit pengeluaran mengikut Jenis Akua terpilih (Air Tawar/Air Payau = Tan Metrik, Hatcheri/Hiasan = Ekor, Tumbuhan = Ikat)
+      const activeAkuaRows = filtered.length > 0 ? filtered : ladangAggData;
+      const uCfgLink = detectUnitConfig(activeAkuaRows);
+      const decUnit  = (uCfgLink.unit === 'Ekor' || uCfgLink.unit === 'Ikat') ? 0 : 2;
+
+      document.getElementById('ldgUnitNotice').style.display        = uCfgLink.isMixed ? 'block' : 'none';
+      document.getElementById('kpiLdgLinkUnitLabel').innerText      = uCfgLink.unit;
+      document.getElementById('thLdgLinkPeng').innerText            = `Pengeluaran (${uCfgLink.unit})`;
 
       // 1. Pengiraan KPI Ladang
       let totalLadang = 0;
@@ -3984,28 +4109,33 @@
       document.getElementById('kpiLdgUnitLainSub').innerText = `Unit Lain: ${unitLainStr}`;
 
       // 2. Penghubungan Silang dengan Dataset Pengeluaran (rawData) mengikut 5 dimensi sepunya
+      const upSetTahun  = new Set([...ldgSelectedFilters.tahun].map(v => v.toUpperCase().trim()));
+      const upSetNegeri = new Set([...ldgSelectedFilters.negeri].map(v => v.toUpperCase().trim()));
+      const upSetDaerah = new Set([...ldgSelectedFilters.daerah].map(v => v.toUpperCase().trim()));
+      const upSetAkua   = new Set([...ldgSelectedFilters.jenisAkua].map(v => v.toUpperCase().trim()));
+      const upSetSistem = new Set([...ldgSelectedFilters.sistem].map(v => v.toUpperCase().trim()));
+
       const prodSource = (typeof rawData !== 'undefined' && Array.isArray(rawData)) ? rawData : [];
-      let linkedPengTan = 0;
+      let linkedPengVal = 0;
       let linkedRm      = 0;
       const prodByNegSis = {};
 
       prodSource.forEach(p => {
-        const pTahun  = String(p.tahun || '').toUpperCase();
-        const pNegeri = String(p.negeri || '').toUpperCase();
-        const pDaerah = String(p.daerah || '').toUpperCase();
-        const pAkua   = String(p.jenisAkua || '').toUpperCase();
-        const pSistem = String(p.sTernakan || '').toUpperCase();
+        const pTahun  = String(p.tahun || '').toUpperCase().trim();
+        const pNegeri = String(p.negeri || '').toUpperCase().trim();
+        const pDaerah = String(p.daerah || '').toUpperCase().trim();
+        const pAkua   = String(p.jenisAkua || '').toUpperCase().trim();
+        const pSistem = String(p.sTernakan || '').toUpperCase().trim();
 
-        if (fTahun  !== 'ALL' && pTahun  !== fTahun.toUpperCase())  return;
-        if (fNegeri !== 'ALL' && pNegeri !== fNegeri.toUpperCase()) return;
-        if (fDaerah !== 'ALL' && pDaerah !== fDaerah.toUpperCase()) return;
-        if (fAkua   !== 'ALL' && pAkua   !== fAkua.toUpperCase())   return;
-        if (fSistem !== 'ALL' && pSistem !== fSistem.toUpperCase()) return;
+        if (upSetTahun.size > 0  && !upSetTahun.has(pTahun))   return;
+        if (upSetNegeri.size > 0 && !upSetNegeri.has(pNegeri)) return;
+        if (upSetDaerah.size > 0 && !upSetDaerah.has(pDaerah)) return;
+        if (upSetAkua.size > 0   && !upSetAkua.has(pAkua))     return;
+        if (upSetSistem.size > 0 && !upSetSistem.has(pSistem)) return;
 
-        // Tukar pengeluaran kepada Tan Metrik jika unit asal ialah kg/ekor atau sudah tan
         const pengVal = Number(p.pengeluaran) || 0;
         const rmVal   = Number(p.nilaiBorong) || 0;
-        linkedPengTan += pengVal;
+        linkedPengVal += pengVal;
         linkedRm      += rmVal;
 
         const key = `${pNegeri}|||${pSistem}`;
@@ -4014,18 +4144,17 @@
         prodByNegSis[key].rm   += rmVal;
       });
 
-      document.getElementById('kpiLdgLinkPeng').innerText = `${fmtNum(linkedPengTan, 2)} Tan`;
+      document.getElementById('kpiLdgLinkPeng').innerText = fmtNum(linkedPengVal, decUnit);
       document.getElementById('kpiLdgLinkRm').innerText   = formatRMShort(linkedRm);
-      const avgPengPerFarm = totalLadang > 0 ? (linkedPengTan / totalLadang) : 0;
+      const avgPengPerFarm = totalLadang > 0 ? (linkedPengVal / totalLadang) : 0;
       document.getElementById('kpiLdgLinkProdSub').innerText =
-        `Purata Hasil/Ladang: ${fmtNum(avgPengPerFarm, 2)} Tan`;
+        `Purata Hasil/Ladang: ${fmtNum(avgPengPerFarm, decUnit)} ${uCfgLink.unit}`;
 
       // Reset lencana boleh klik pada modul ladang
       document.querySelectorAll('#moduleLadangWrap .clickable-legend').forEach(el => {
         el.classList.remove('hidden-series');
       });
 
-      // Helper pengagregatan carta ladang
       const aggLdg = (arr, keyFn) => {
         const m = {};
         arr.forEach(d => {
@@ -4036,8 +4165,6 @@
         });
         return m;
       };
-
-      const unitLdg = { unit: 'Ladang', kgFactor: 1, priceUnit: 'Ha' };
 
       // L1. Trend Bilangan Ladang & Keluasan Mengikut Tahun (Bebas penapis Tahun)
       const byYr = aggLdg(filteredNoYear, d => d.tahun);
@@ -4149,7 +4276,8 @@
             bil: 0,
             luas: 0,
             peng: prodMatch.peng,
-            rm: prodMatch.rm
+            rm: prodMatch.rm,
+            decUnit: decUnit
           };
         }
         linkMap[key].bil  += d.bil;
@@ -4160,15 +4288,15 @@
 
       // 4. Bina Jadual L8: Direktori Ladang Individu
       ldgDirFilteredCache = (ladangDirData || []).filter(d => {
-        if (fTahun  !== 'ALL' && d.tahun !== fTahun) return false;
-        if (fNegeri !== 'ALL' && d.negeri !== fNegeri) return false;
-        if (fDaerah !== 'ALL' && d.daerah !== fDaerah) return false;
-        if (fAkua   !== 'ALL' && d.jenisAkua !== fAkua) return false;
-        if (fSistem !== 'ALL' && d.sistem !== fSistem) return false;
-        if (fParl   !== 'ALL' && d.parl !== fParl) return false;
-        if (fDun    !== 'ALL' && d.dun !== fDun) return false;
-        if (fStatus !== 'ALL' && d.status !== fStatus) return false;
-        if (fSkl    !== 'ALL' && d.skl !== fSkl) return false;
+        if (ldgSelectedFilters.tahun.size > 0     && !ldgSelectedFilters.tahun.has(d.tahun)) return false;
+        if (ldgSelectedFilters.negeri.size > 0    && !ldgSelectedFilters.negeri.has(d.negeri)) return false;
+        if (ldgSelectedFilters.daerah.size > 0    && !ldgSelectedFilters.daerah.has(d.daerah)) return false;
+        if (ldgSelectedFilters.jenisAkua.size > 0 && !ldgSelectedFilters.jenisAkua.has(d.jenisAkua)) return false;
+        if (ldgSelectedFilters.sistem.size > 0    && !ldgSelectedFilters.sistem.has(d.sistem)) return false;
+        if (ldgSelectedFilters.parlimen.size > 0  && !ldgSelectedFilters.parlimen.has(d.parl)) return false;
+        if (ldgSelectedFilters.dun.size > 0       && !ldgSelectedFilters.dun.has(d.dun)) return false;
+        if (ldgSelectedFilters.status.size > 0    && !ldgSelectedFilters.status.has(d.status)) return false;
+        if (ldgSelectedFilters.skl.size > 0       && !ldgSelectedFilters.skl.has(d.skl)) return false;
         return true;
       });
       showAllLdgDir = false;
@@ -4304,7 +4432,7 @@
           <td>${r.sistem}</td>
           <td class="num">${fmtNum(r.bil, 0)}</td>
           <td class="num">${fmtNum(r.luas, 2)}</td>
-          <td class="num">${fmtNum(r.peng, 2)}</td>
+          <td class="num">${fmtNum(r.peng, r.decUnit ?? 2)}</td>
           <td class="num">${formatRMShort(r.rm)}</td>
         </tr>`).join('') ||
         '<tr><td colspan="6" style="text-align:center; color:#64748b;">Tiada rekod padanan ditemui</td></tr>';
