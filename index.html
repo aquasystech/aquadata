@@ -1080,21 +1080,38 @@
           <span class="badge">Memaparkan semua garis mengikut penapis di atas (2017–2026) | Klik legenda untuk sorok/papar</span>
         </div>
 
-        <!-- CARTA 3: Prestasi Tahunan Keseluruhan -->
-        <div class="chart-section accent-purple">
-          <div class="chart-top">
-            <h2 class="chart-title">3. Prestasi Tahunan Keseluruhan 2017–2026 (Bebas Penapis Tahun)</h2>
-            <div class="metric-badges">
-              <span class="badge purple" id="badgeC3Unit">Bar: Pengeluaran (Tan Metrik)</span>
-              <span class="badge rm">Garis: Nilai Borong (RM)</span>
+        <!-- BARIS 1: Carta 3 & Carta 9F (2 Lajur di Komputer) -->
+        <div class="chart-row-2col">
+          <!-- CARTA 3: Prestasi Tahunan Keseluruhan -->
+          <div class="chart-section accent-purple">
+            <div class="chart-top">
+              <h2 class="chart-title">3. Prestasi Tahunan Keseluruhan 2017–2026 (Bebas Penapis Tahun)</h2>
+              <div class="metric-badges">
+                <span class="badge purple" id="badgeC3Unit">Bar: Pengeluaran (Tan Metrik)</span>
+                <span class="badge rm">Garis: Nilai Borong (RM)</span>
+              </div>
+            </div>
+            <div class="canvas-container tall">
+              <canvas id="cYearly"></canvas>
             </div>
           </div>
-          <div class="canvas-container tall">
-            <canvas id="cYearly"></canvas>
+
+          <!-- CARTA 9F: Perbandingan Bulanan Antara Tahun -->
+          <div class="chart-section accent-purple">
+            <div class="chart-top">
+              <h2 class="chart-title">9F. Perbandingan Bulanan Antara Tahun (Jan–Dis)</h2>
+              <div class="metric-badges">
+                <span class="badge purple">Paksi-X: Bulan (Jan–Dis)</span>
+                <span class="badge">Setiap Garis: Tahun (Klik Legenda)</span>
+              </div>
+            </div>
+            <div class="canvas-container tall">
+              <canvas id="cLine10Y_monthYear"></canvas>
+            </div>
           </div>
         </div>
 
-        <!-- 5 CARTA GARIS PERBANDINGAN 10 TAHUN MENGIKUT DIMENSI -->
+        <!-- BARIS 2: Carta 9A & Carta 9B (2 Lajur di Komputer) -->
         <div class="chart-row-2col">
           <div class="chart-section accent-indigo">
             <div class="chart-top">
@@ -1115,6 +1132,7 @@
           </div>
         </div>
 
+        <!-- BARIS 3: Carta 9C & Carta 9D (2 Lajur di Komputer) -->
         <div class="chart-row-2col">
           <div class="chart-section accent-amber">
             <div class="chart-top">
@@ -1135,25 +1153,15 @@
           </div>
         </div>
 
-        <div class="chart-section accent-emerald">
-          <div class="chart-top">
-            <h2 class="chart-title">9E. Trend 10 Tahun Mengikut Daerah (Semua Garis Tertapis)</h2>
-          </div>
-          <div class="canvas-container tall">
-            <canvas id="cLine10Y_daerah"></canvas>
-          </div>
-        </div>
-
-        <div class="chart-section accent-purple">
-          <div class="chart-top">
-            <h2 class="chart-title">9F. Perbandingan Bulanan Antara Tahun (Jan–Dis, 2017–2026)</h2>
-            <div class="metric-badges">
-              <span class="badge purple">Paksi-X: Bulan (Jan–Dis)</span>
-              <span class="badge">Setiap Garis: Tahun (Klik Legenda untuk Sorok/Papar)</span>
+        <!-- BARIS 4: Carta 9E (2 Lajur di Komputer) -->
+        <div class="chart-row-2col">
+          <div class="chart-section accent-emerald">
+            <div class="chart-top">
+              <h2 class="chart-title">9E. Trend 10 Tahun Mengikut Daerah (Semua Garis Tertapis)</h2>
             </div>
-          </div>
-          <div class="canvas-container tall">
-            <canvas id="cLine10Y_monthYear"></canvas>
+            <div class="canvas-container tall">
+              <canvas id="cLine10Y_daerah"></canvas>
+            </div>
           </div>
         </div>
       </div>
